@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 // GET - Fetch active submission options (Public API for blog/new page)
 export async function GET(request: NextRequest) {
     try {

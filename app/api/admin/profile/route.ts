@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 import bcrypt from "bcryptjs";
 
+export const dynamic = 'force-dynamic';
+
 // GET - Fetch current user profile
 export async function GET() {
     try {
