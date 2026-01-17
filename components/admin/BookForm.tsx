@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Save, Eye } from 'lucide-react'
 import Link from 'next/link'
 import ImageUpload from './ImageUpload'
+import { generateSlug } from '@/lib/slugify'
 
 interface BookFormProps {
     initialData?: {
@@ -34,21 +35,13 @@ export default function BookForm({ initialData }: BookFormProps) {
         categoryId: initialData?.categoryId || 'poetry',
     })
 
-    const generateSlug = (title: string) => {
-        return title
-            .toLowerCase()
-            .replace(/[^\u0980-\u09FFa-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .trim()
-    }
-
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const title = e.target.value
         setFormData(prev => ({
             ...prev,
             title,
-            slug: prev.slug || generateSlug(title)
+            // Always update slug when title changes (for new books)
+            slug: !initialData?.id ? generateSlug(title) : prev.slug
         }))
     }
 

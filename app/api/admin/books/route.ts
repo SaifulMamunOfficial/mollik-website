@@ -29,30 +29,32 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json()
-        const { title, slug, subtitle, description, year, publisher, categoryId, coverImage } = body
+        let { title, slug, subtitle, description, year, publisher, categoryId, coverImage } = body
 
-        if (!title || !slug) {
+        if (!title) {
             return NextResponse.json(
-                { error: 'Title and slug are required' },
+                { error: 'Title is required' },
                 { status: 400 }
             )
         }
 
-        const existingBook = await prisma.book.findUnique({
-            where: { slug },
-        })
+        // If no slug provided, generate from title (will be handled by client)
+        if (!slug) {
+            slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')
+        }
 
-        if (existingBook) {
-            return NextResponse.json(
-                { error: 'এই স্লাগ দিয়ে আরেকটি বই আছে' },
-                { status: 400 }
-            )
+        // Make slug unique by appending number if exists
+        let finalSlug = slug
+        let counter = 1
+        while (await prisma.book.findUnique({ where: { slug: finalSlug } })) {
+            finalSlug = `${slug}-${counter}`
+            counter++
         }
 
         const book = await prisma.book.create({
             data: {
                 title,
-                slug,
+                slug: finalSlug,
                 subtitle,
                 description,
                 year,
