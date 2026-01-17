@@ -19,6 +19,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^6.19.2",
+    "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
     "lucide-react": "^0.468.0",

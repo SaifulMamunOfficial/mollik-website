@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, Eye, Upload } from 'lucide-react'
+import { ArrowLeft, Save, Eye } from 'lucide-react'
 import Link from 'next/link'
+import ImageUpload from './ImageUpload'
 
 interface BookFormProps {
     initialData?: {
@@ -174,25 +175,12 @@ export default function BookForm({ initialData }: BookFormProps) {
                 <div className="space-y-6">
                     {/* Cover Image */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h3 className="font-semibold text-gray-900 mb-4">প্রচ্ছদ</h3>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                            {formData.coverImage ? (
-                                <img
-                                    src={formData.coverImage}
-                                    alt="Cover"
-                                    className="w-full h-48 object-cover rounded-lg mb-2"
-                                />
-                            ) : (
-                                <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                            )}
-                            <input
-                                type="text"
-                                value={formData.coverImage}
-                                onChange={(e) => setFormData(prev => ({ ...prev, coverImage: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mt-2"
-                                placeholder="Image URL"
-                            />
-                        </div>
+                        <ImageUpload
+                            value={formData.coverImage}
+                            onChange={(url) => setFormData(prev => ({ ...prev, coverImage: url }))}
+                            folder="books"
+                            label="বইয়ের প্রচ্ছদ"
+                        />
                     </div>
 
                     {/* Settings */}

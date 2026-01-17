@@ -1,67 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import sharp from "sharp";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
-export const dynamic = 'force-dynamic'
-
-const TARGET_SIZE_KB = 200; // Target file size in KB
-const MAX_DIMENSION = 800; // Max width/height for avatar
-
-async function compressImage(buffer: Buffer, mimeType: string): Promise<Buffer> {
-    let sharpInstance = sharp(buffer);
-
-    // Get image metadata
-    const metadata = await sharpInstance.metadata();
-
-    // Resize if too large (keeping aspect ratio)
-    if (metadata.width && metadata.height) {
-        if (metadata.width > MAX_DIMENSION || metadata.height > MAX_DIMENSION) {
-            sharpInstance = sharpInstance.resize(MAX_DIMENSION, MAX_DIMENSION, {
-                fit: 'inside',
-                withoutEnlargement: true
-            });
-        }
-    }
-
-    // Convert to JPEG/WebP for better compression
-    let quality = 90;
-    let outputBuffer: Buffer;
-
-    // Try different quality levels to get under target size
-    do {
-        if (mimeType === 'image/png' || mimeType === 'image/webp') {
-            outputBuffer = await sharpInstance
-                .webp({ quality })
-                .toBuffer();
-        } else {
-            outputBuffer = await sharpInstance
-                .jpeg({ quality, mozjpeg: true })
-                .toBuffer();
-        }
-
-        // Reduce quality if still too large
-        if (outputBuffer.length > TARGET_SIZE_KB * 1024 && quality > 20) {
-            quality -= 10;
-            sharpInstance = sharp(buffer); // Reset to original
-            if (metadata.width && metadata.height) {
-                if (metadata.width > MAX_DIMENSION || metadata.height > MAX_DIMENSION) {
-                    sharpInstance = sharpInstance.resize(MAX_DIMENSION, MAX_DIMENSION, {
-                        fit: 'inside',
-                        withoutEnlargement: true
-                    });
-                }
-            }
-        } else {
-            break;
-        }
-    } while (quality > 20);
-
-    console.log(`Image compressed: ${buffer.length} bytes -> ${outputBuffer.length} bytes (quality: ${quality})`);
-
-    return outputBuffer;
-}
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     try {
@@ -74,8 +15,17 @@ export async function POST(request: Request) {
             );
         }
 
+        // Check for admin role
+        if (!['ADMIN', 'SUPER_ADMIN'].includes(session.user.role)) {
+            return NextResponse.json(
+                { message: "শুধুমাত্র অ্যাডমিনরা আপলোড করতে পারেন" },
+                { status: 403 }
+            );
+        }
+
         const formData = await request.formData();
         const file = formData.get("file") as File | null;
+        const folder = formData.get("folder") as string || "general";
 
         if (!file) {
             return NextResponse.json(
@@ -93,7 +43,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // Validate file size (max 10MB before compression)
+        // Validate file size (max 10MB)
         const maxSize = 10 * 1024 * 1024; // 10MB
         if (file.size > maxSize) {
             return NextResponse.json(
@@ -102,40 +52,17 @@ export async function POST(request: Request) {
             );
         }
 
-        // Create uploads directory if not exists
-        const uploadDir = path.join(process.cwd(), "public", "uploads", "avatars");
-        await mkdir(uploadDir, { recursive: true });
-
-        // Read file and compress
+        // Read file buffer
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // Compress the image
-        const compressedBuffer = await compressImage(buffer, file.type);
-
-        // Determine output extension based on compression
-        const isWebp = file.type === 'image/png' || file.type === 'image/webp';
-        const ext = isWebp ? 'webp' : 'jpg';
-
-        // Generate unique filename
-        const filename = `${session.user.id}-${Date.now()}.${ext}`;
-        const filePath = path.join(uploadDir, filename);
-
-        // Write compressed file
-        await writeFile(filePath, compressedBuffer);
-
-        // Return the URL
-        const url = `/uploads/avatars/${filename}`;
-
-        // Calculate compression ratio
-        const originalSizeKB = Math.round(buffer.length / 1024);
-        const compressedSizeKB = Math.round(compressedBuffer.length / 1024);
+        // Upload to Cloudinary
+        const result = await uploadToCloudinary(buffer, `mollik/${folder}`);
 
         return NextResponse.json({
-            message: `ছবি আপলোড হয়েছে (${originalSizeKB}KB → ${compressedSizeKB}KB)`,
-            url,
-            originalSize: originalSizeKB,
-            compressedSize: compressedSizeKB
+            message: "ছবি আপলোড হয়েছে",
+            url: result.url,
+            publicId: result.publicId
         });
     } catch (error) {
         console.error("Error uploading file:", error);
