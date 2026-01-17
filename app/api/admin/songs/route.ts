@@ -40,22 +40,18 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Check if slug already exists
-        const existingSong = await prisma.writing.findUnique({
-            where: { slug },
-        })
-
-        if (existingSong) {
-            return NextResponse.json(
-                { error: 'এই স্লাগ দিয়ে আরেকটি গান আছে' },
-                { status: 400 }
-            )
+        // Make slug unique by appending number if exists
+        let finalSlug = slug
+        let counter = 1
+        while (await prisma.writing.findUnique({ where: { slug: finalSlug } })) {
+            finalSlug = `${slug}-${counter}`
+            counter++
         }
 
         const song = await prisma.writing.create({
             data: {
                 title,
-                slug,
+                slug: finalSlug,
                 content,
                 excerpt: excerpt || null,
                 type: 'SONG',
