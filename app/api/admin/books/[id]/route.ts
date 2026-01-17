@@ -37,7 +37,7 @@ export async function PATCH(
         }
 
         const body = await request.json()
-        const { title, slug, subtitle, description, year, publisher, categoryId } = body
+        const { title, slug, subtitle, description, year, publisher, categoryId, coverImage } = body
 
         if (slug) {
             const existingBook = await prisma.book.findFirst({
@@ -64,6 +64,7 @@ export async function PATCH(
                 description,
                 year,
                 publisher,
+                coverImage,
                 categoryId,
             },
         })

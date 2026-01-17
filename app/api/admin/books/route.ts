@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json()
-        const { title, slug, subtitle, description, year, publisher, categoryId } = body
+        const { title, slug, subtitle, description, year, publisher, categoryId, coverImage } = body
 
         if (!title || !slug) {
             return NextResponse.json(
@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
                 description,
                 year,
                 publisher,
+                coverImage,
                 categoryId: categoryId || 'poetry', // Default category
             },
         })
