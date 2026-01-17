@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json()
-        const { title, slug, content, excerpt, categoryId, bookId, year, status, type } = body
+        let { title, slug, content, excerpt, categoryId, bookId, year, status, type } = body
 
         // Validate required fields
         if (!title || !slug || !content) {
@@ -40,16 +40,17 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Check if slug already exists
-        const existingPoem = await prisma.writing.findUnique({
-            where: { slug },
-        })
+        // If no slug provided, generate from title (client usually sends it, but fallback)
+        if (!slug) {
+            slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')
+        }
 
-        if (existingPoem) {
-            return NextResponse.json(
-                { error: 'এই স্লাগ দিয়ে আরেকটি রচনা আছে' },
-                { status: 400 }
-            )
+        // Make slug unique
+        let finalSlug = slug
+        let counter = 1
+        while (await prisma.writing.findUnique({ where: { slug: finalSlug } })) {
+            finalSlug = `${slug}-${counter}`
+            counter++
         }
 
         const poem = await prisma.writing.create({

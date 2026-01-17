@@ -40,7 +40,7 @@ export async function PUT(
 
         const { id } = await params
         const body = await request.json()
-        const { title, slug, content, excerpt, categoryId, bookId, year, status } = body
+        let { title, slug, content, excerpt, categoryId, bookId, year, status } = body
 
         // Check if poem exists
         const existingPoem = await prisma.writing.findUnique({
@@ -51,17 +51,20 @@ export async function PUT(
             return NextResponse.json({ error: 'Poem not found' }, { status: 404 })
         }
 
-        // Check if new slug conflicts with another poem
-        if (slug !== existingPoem.slug) {
-            const slugConflict = await prisma.writing.findUnique({
-                where: { slug },
-            })
-            if (slugConflict) {
-                return NextResponse.json(
-                    { error: 'এই স্লাগ দিয়ে আরেকটি রচনা আছে' },
-                    { status: 400 }
-                )
+        // If slug changed, ensure uniqueness
+        if (slug && slug !== existingPoem.slug) {
+            let finalSlug = slug
+            let counter = 1
+            while (await prisma.writing.findFirst({
+                where: {
+                    slug: finalSlug,
+                    id: { not: id }
+                }
+            })) {
+                finalSlug = `${slug}-${counter}`
+                counter++
             }
+            slug = finalSlug
         }
 
         const poem = await prisma.writing.update({
