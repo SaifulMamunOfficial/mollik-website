@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Video, Youtube } from 'lucide-react'
 
+import { generateSlug } from '@/lib/slugify'
+
 export default function NewVideoPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
@@ -17,15 +19,6 @@ export default function NewVideoPage() {
         category: '',
         featured: false
     })
-
-    const generateSlug = (title: string) => {
-        return title
-            .toLowerCase()
-            .replace(/[^\u0980-\u09FFa-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .trim()
-    }
 
     const extractYoutubeId = (url: string) => {
         const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/)
@@ -46,10 +39,13 @@ export default function NewVideoPage() {
                 }),
             })
 
+            const data = await response.json()
+
             if (response.ok) {
                 router.push('/admin/videos')
+                router.refresh()
             } else {
-                alert('ভিডিও সেভ করতে সমস্যা হয়েছে')
+                alert(data.error || 'ভিডিও সেভ করতে সমস্যা হয়েছে')
             }
         } catch (error) {
             console.error('Error:', error)
