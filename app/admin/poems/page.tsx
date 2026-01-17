@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { Plus, Edit, Trash2, Eye, Search } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import prisma from '@/lib/prisma'
+import PoemsTable from '@/components/admin/PoemsTable'
 
 async function getPoems() {
     return prisma.writing.findMany({
