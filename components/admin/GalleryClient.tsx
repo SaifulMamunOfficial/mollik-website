@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Plus, Trash2, Star, Search, Image, Upload, Check, X, Clock } from 'lucide-react'
+import { Plus, Trash2, Star, Search, Image, Upload, Check, X, Clock, AlertTriangle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface GalleryImage {
     id: string
@@ -19,9 +20,25 @@ interface Props {
 }
 
 export default function GalleryClient({ images }: Props) {
+    const router = useRouter()
+    // We can use local state for optimistic updates, or router.refresh()
+    // Since images are passed as props, router.refresh() is better but might be slow.
+    // Let's use local state initialized from props.
+    // Wait, the props 'images' will update on refresh.
+    // But for immediate feedback, we update local state.
+
+    // However, if we use local state 'items', we need to sync it with props if separate.
+    // But normally props update causes re-render.
+    // Let's stick to local state derived from props, but updating it when props change is tricky without useEffect.
+    // Simpler: Just use local state and update it on action. If router.refresh re-renders, it passes new props.
+    // We can use `useState(images)` but if props change, it won't reflect unless we use key or useEffect.
+    // Given the previous code used `useState(images)`, I'll stick to that.
+
     const [items, setItems] = useState(images)
     const [filter, setFilter] = useState('all')
     const [search, setSearch] = useState('')
+    const [deleteId, setDeleteId] = useState<string | null>(null)
+    const [loading, setLoading] = useState<string | null>(null)
 
     const pendingImages = items.filter(i => i.status === 'PENDING')
     const publishedImages = items.filter(i => i.status === 'PUBLISHED')
@@ -43,6 +60,7 @@ export default function GalleryClient({ images }: Props) {
                 setItems(items.map(img =>
                     img.id === id ? { ...img, status: 'PUBLISHED' } : img
                 ))
+                router.refresh()
             }
         } catch (error) {
             console.error('Approve error:', error)
@@ -54,9 +72,65 @@ export default function GalleryClient({ images }: Props) {
             const res = await fetch(`/api/admin/gallery/${id}/reject`, { method: 'POST' })
             if (res.ok) {
                 setItems(items.filter(img => img.id !== id))
+                router.refresh()
             }
         } catch (error) {
             console.error('Reject error:', error)
+        }
+    }
+
+    const handleToggleFeatured = async (id: string, currentFeatured: boolean) => {
+        try {
+            // Optimistic update
+            setItems(items.map(img =>
+                img.id === id ? { ...img, featured: !currentFeatured } : img
+            ))
+
+            const res = await fetch(`/api/admin/gallery/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ featured: !currentFeatured })
+            })
+
+            if (!res.ok) {
+                // Revert
+                setItems(items.map(img =>
+                    img.id === id ? { ...img, featured: currentFeatured } : img
+                ))
+                alert('আপডেট করতে সমস্যা হয়েছে')
+            } else {
+                router.refresh()
+            }
+        } catch (error) {
+            console.error('Toggle featured error:', error)
+            // Revert
+            setItems(items.map(img =>
+                img.id === id ? { ...img, featured: currentFeatured } : img
+            ))
+        }
+    }
+
+    const handleDelete = async () => {
+        if (!deleteId) return
+        setLoading(deleteId)
+
+        try {
+            const response = await fetch(`/api/admin/gallery/${deleteId}`, {
+                method: 'DELETE',
+            })
+
+            if (response.ok) {
+                setItems(items.filter(img => img.id !== deleteId))
+                router.refresh()
+            } else {
+                alert('ডিলিট করতে সমস্যা হয়েছে')
+            }
+        } catch (error) {
+            console.error('Error:', error)
+            alert('ডিলিট করতে সমস্যা হয়েছে')
+        } finally {
+            setLoading(null)
+            setDeleteId(null)
         }
     }
 
@@ -160,7 +234,7 @@ export default function GalleryClient({ images }: Props) {
                         </Link>
                     </div>
                 ) : (
-                    filteredImages.filter(i => i.status === 'PUBLISHED').map((image) => (
+                    filteredImages.filter(i => i.status === 'PUBLISHED' || filter !== 'published').map((image) => (
                         <div key={image.id} className="group relative bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                             <img
                                 src={image.url}
@@ -171,15 +245,17 @@ export default function GalleryClient({ images }: Props) {
                             {/* Overlay */}
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                 <button
+                                    onClick={() => handleToggleFeatured(image.id, image.featured)}
                                     className={`p-2 rounded-full transition-colors ${image.featured
-                                            ? 'bg-amber-500 text-white'
-                                            : 'bg-white/20 text-white hover:bg-amber-500'
+                                        ? 'bg-amber-500 text-white'
+                                        : 'bg-white/20 text-white hover:bg-amber-500'
                                         }`}
                                     title={image.featured ? 'ফিচার্ড' : 'ফিচার করুন'}
                                 >
                                     <Star size={18} fill={image.featured ? 'currentColor' : 'none'} />
                                 </button>
                                 <button
+                                    onClick={() => setDeleteId(image.id)}
                                     className="p-2 bg-white/20 text-white rounded-full hover:bg-red-500 transition-colors"
                                     title="মুছুন"
                                 >
@@ -208,6 +284,42 @@ export default function GalleryClient({ images }: Props) {
                     ))
                 )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                <AlertTriangle className="w-6 h-6 text-red-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">আপনি কি নিশ্চিত?</h3>
+                                <p className="text-gray-500 text-sm mt-1">
+                                    এই ছবিটি মুছে ফেলা হবে। এই অ্যাকশনটি ফিরিয়ে নেওয়া যাবে না।
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3">
+                            <button
+                                onClick={() => setDeleteId(null)}
+                                disabled={loading === deleteId}
+                                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                বাতিল
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                disabled={loading === deleteId}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                            >
+                                {loading === deleteId ? 'মুছে ফেলা হচ্ছে...' : 'মুছে ফেলুন'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

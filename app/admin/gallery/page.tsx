@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma'
-import GalleryClient from './GalleryClient'
+import GalleryClient from '@/components/admin/GalleryClient'
 
 async function getGalleryImages() {
     return prisma.galleryImage.findMany({
@@ -10,5 +10,5 @@ async function getGalleryImages() {
 export default async function GalleryPage() {
     const images = await getGalleryImages()
 
-    return <GalleryClient images={images as any} />
+    return <GalleryClient images={images} />
 }
