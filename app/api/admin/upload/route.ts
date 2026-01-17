@@ -4,6 +4,8 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import sharp from "sharp";
 
+export const dynamic = 'force-dynamic'
+
 const TARGET_SIZE_KB = 200; // Target file size in KB
 const MAX_DIMENSION = 800; // Max width/height for avatar
 

@@ -3,6 +3,8 @@ import { auth } from '@/auth'
 import prisma from '@/lib/prisma'
 import { sendNewPostEmail } from '@/lib/email'
 
+export const dynamic = 'force-dynamic'
+
 // GET all blog posts (Admin view)
 export async function GET(request: NextRequest) {
     try {

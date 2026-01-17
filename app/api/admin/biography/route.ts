@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { getBiographyFromDB } from '@/lib/data';
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
     try {
         const session = await auth();

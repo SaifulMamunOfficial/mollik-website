@@ -2,6 +2,8 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic'
+
 const HIERARCHY = {
     "SUPER_ADMIN": 4,
     "ADMIN": 3,
