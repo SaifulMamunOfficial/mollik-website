@@ -14,8 +14,11 @@ interface Props {
 }
 
 async function getBookAndWriting(slug: string, writingSlug: string) {
+    const decodedSlug = decodeURIComponent(slug)
+    const decodedWritingSlug = decodeURIComponent(writingSlug)
+
     const book = await prisma.book.findUnique({
-        where: { slug },
+        where: { slug: decodedSlug },
         include: {
             writings: {
                 select: {
@@ -23,7 +26,7 @@ async function getBookAndWriting(slug: string, writingSlug: string) {
                     title: true,
                     slug: true
                 },
-                orderBy: { title: 'asc' } // Or however you want to order them
+                orderBy: { title: 'asc' }
             }
         }
     })
@@ -31,7 +34,7 @@ async function getBookAndWriting(slug: string, writingSlug: string) {
     if (!book) return null
 
     const writing = await prisma.writing.findUnique({
-        where: { slug: writingSlug },
+        where: { slug: decodedWritingSlug },
     })
 
     if (!writing || writing.bookId !== book.id) return null
