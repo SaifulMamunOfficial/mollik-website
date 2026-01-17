@@ -156,7 +156,8 @@ export default function TributesClient({ tributes }: Props) {
                                         </div>
                                     </div>
                                     <button
-                                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                                        onClick={() => handleReject(tribute.id)}
+                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                         title="মুছুন"
                                     >
                                         <Trash2 size={18} />
