@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/layout/Header";
@@ -159,12 +160,12 @@ const organizationTypes = [
     "যুব সংগঠন",
     "অন্যান্য",
 ];
-const loggedInUser = {
-    name: "সাইফুল ইসলাম",
-    username: "saiful-islam",
-};
-
 export default function SubmitPage() {
+    const { data: session } = useSession();
+    const loggedInUser = {
+        name: session?.user?.name || "অতিথি",
+        username: (session?.user as any)?.username || "guest",
+    };
     const [step, setStep] = useState(1);
     const [submissionType, setSubmissionType] = useState<string | null>(null);
     const [title, setTitle] = useState("");
@@ -235,7 +236,7 @@ export default function SubmitPage() {
         }, 1000);
     };
 
-    const handlePublish = () => {
+    const handlePublish = async () => {
         // শোকবার্তা specific validation
         if (isCondolence) {
             if (!content.trim()) {
@@ -277,10 +278,94 @@ export default function SubmitPage() {
         }
 
         setIsPublishing(true);
-        setTimeout(() => {
+
+        try {
+            let response;
+
+            if (isCondolence) {
+                // Submit condolence/tribute
+                response = await fetch('/api/submit/tribute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content,
+                        district: selectedDistrict,
+                        designation: selectedDesignation,
+                        isOrganization,
+                        organizationName: isOrganization ? organizationName : null,
+                        organizationType: isOrganization ? organizationType : null,
+                        organizationRole: isOrganization ? organizationRole : null,
+                    }),
+                });
+            } else if (submissionType === 'blog' || submissionType === 'poem') {
+                // Submit blog/poem
+                response = await fetch('/api/submit/blog', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title,
+                        content,
+                        excerpt: content.substring(0, 200),
+                        coverImage,
+                        category,
+                        type: submissionType,
+                        isOwnWriting,
+                        authorName: !isOwnWriting ? authorName : null,
+                    }),
+                });
+            } else if (submissionType === 'photo') {
+                // Submit photo to gallery
+                response = await fetch('/api/submit/gallery', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title,
+                        description: content,
+                        coverImage,
+                        category,
+                        year: photoYear,
+                        location: photoLocation,
+                    }),
+                });
+            } else if (submissionType === 'audio') {
+                // Submit audio
+                response = await fetch('/api/submit/audio', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title,
+                        description: content,
+                        audioUrl: mediaUrl,
+                        coverImage,
+                        category,
+                    }),
+                });
+            } else if (submissionType === 'video') {
+                // Submit video
+                response = await fetch('/api/submit/video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title,
+                        description: content,
+                        youtubeUrl: mediaUrl,
+                        thumbnail: coverImage,
+                        category,
+                    }),
+                });
+            }
+
+            if (response && !response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'সাবমিট করতে সমস্যা হয়েছে');
+            }
+
             setIsPublishing(false);
             setIsSubmitted(true);
-        }, 1500);
+        } catch (error: any) {
+            setIsPublishing(false);
+            alert(error.message || 'সাবমিট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+        }
     };
 
     const wordCount = content.trim().split(/\s+/).filter(Boolean).length;

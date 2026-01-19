@@ -7,29 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Quote, Heart, PenTool, Calendar, User, ChevronRight } from "lucide-react";
 
 // Sample tribute data for Featured section (Static)
-const featuredTributes = [
-    {
-        id: 1,
-        author: "অধ্যাপক ড. মুহম্মদ জাফর ইকবাল",
-        designation: "লেখক ও শিক্ষাবিদ",
-        quote: "মতিউর রহমান মল্লিক ছিলেন এমন একজন কবি যিনি তাঁর কবিতায় মানবতা, প্রকৃতি এবং আধ্যাত্মিকতার এক অপূর্ব সমন্বয় ঘটিয়েছিলেন।",
-        image: "/images/tributes/tribute-1.jpg"
-    },
-    {
-        id: 2,
-        author: "কবি আল মাহমুদ",
-        designation: "কবি",
-        quote: "মল্লিক বাংলা কবিতায় এক নতুন ধারার সূচনা করেছিলেন। তাঁর কবিতা পড়লে মনে হয় প্রকৃতি কথা বলছে।",
-        image: "/images/tributes/tribute-2.jpg"
-    },
-    {
-        id: 3,
-        author: "ড. মুহাম্মদ শহীদুল্লাহ",
-        designation: "ভাষাবিদ ও পণ্ডিত",
-        quote: "তাঁর গানগুলো শুধু সুর নয়, প্রতিটি শব্দ যেন এক একটি দর্শন।",
-        image: "/images/tributes/tribute-3.jpg"
-    }
-];
+
 
 const stats = [
     { label: "কবিতা", value: "৫০০+" },
@@ -41,11 +19,14 @@ const stats = [
 interface Tribute {
     id: string;
     content: string;
-    author: string;
+    author: any;
+    displayName: string;
     authorImage?: string;
     date: string;
-    // location?: string; // Not in DB yet
-    // type?: string; // Not in DB yet, will default
+    district?: string | null;
+    designation?: string;
+    displayOption?: string;
+    isFeatured?: boolean;
 }
 
 export default function TributesClient({ tributes }: { tributes: Tribute[] }) {
@@ -55,12 +36,17 @@ export default function TributesClient({ tributes }: { tributes: Tribute[] }) {
     const tributesWithType = tributes.map(t => ({
         ...t,
         type: "personal", // Defaulting to personal since DB doesn't have type
-        location: "বাংলাদেশ" // Default location
+        location: t.displayOption === 'DESIGNATION' && t.designation
+            ? t.designation
+            : (t.district || "বাংলাদেশ")
     }));
 
-    const filteredTributes = filter === "all"
-        ? tributesWithType
-        : tributesWithType.filter(t => t.type === filter);
+    const featuredTributes = tributesWithType.filter(t => t.isFeatured);
+    const readerTributes = tributesWithType.filter(t => !t.isFeatured);
+
+    const filteredReaderTributes = filter === "all"
+        ? readerTributes
+        : readerTributes.filter(t => t.type === filter);
 
     return (
         <>
@@ -113,33 +99,67 @@ export default function TributesClient({ tributes }: { tributes: Tribute[] }) {
                             </p>
                         </div>
 
-                        <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:gap-8 md:pb-0 scrollbar-hide">
-                            {featuredTributes.map((tribute) => (
-                                <div
-                                    key={tribute.id}
-                                    className="relative bg-gradient-to-br from-primary-50 to-gold-50 dark:from-gray-800 dark:to-gray-800 rounded-2xl p-8 border border-primary-100 dark:border-gray-700 min-w-[300px] md:min-w-0 snap-center flex flex-col"
-                                >
-                                    <div className="flex-1">
-                                        <Quote className="w-10 h-10 text-primary-300 dark:text-primary-700 mb-4" />
-                                        <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 italic">
-                                            "{tribute.quote}"
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-4 mt-auto pt-4 border-t border-primary-100 dark:border-gray-700">
-                                        <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                                            <User className="w-6 h-6 text-gray-400" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900 dark:text-white">
-                                                {tribute.author}
-                                            </h4>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                {tribute.designation}
+                        <div className="relative group">
+                            {featuredTributes.length > 0 && (
+                                <>
+                                    <button
+                                        onClick={() => {
+                                            const container = document.getElementById('featured-tributes-container');
+                                            if (container) container.scrollBy({ left: -400, behavior: 'smooth' });
+                                        }}
+                                        className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-100 dark:border-gray-700 items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-0"
+                                    >
+                                        <ChevronRight className="w-6 h-6 rotate-180" />
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const container = document.getElementById('featured-tributes-container');
+                                            if (container) container.scrollBy({ left: 400, behavior: 'smooth' });
+                                        }}
+                                        className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-100 dark:border-gray-700 items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors opacity-0 group-hover:opacity-100"
+                                    >
+                                        <ChevronRight className="w-6 h-6" />
+                                    </button>
+                                </>
+                            )}
+
+                            <div
+                                id="featured-tributes-container"
+                                className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide"
+                            >
+                                {featuredTributes.length > 0 ? featuredTributes.map((tribute) => (
+                                    <div
+                                        key={tribute.id}
+                                        className="relative bg-gradient-to-br from-primary-50 to-gold-50 dark:from-gray-800 dark:to-gray-800 rounded-2xl p-8 border border-primary-100 dark:border-gray-700 w-[85vw] md:w-[380px] flex-shrink-0 snap-center flex flex-col transition-transform hover:-translate-y-1 duration-300"
+                                    >
+                                        <div className="flex-1">
+                                            <Quote className="w-10 h-10 text-primary-300 dark:text-primary-700 mb-4" />
+                                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 italic text-lg">
+                                                "{tribute.content}"
                                             </p>
                                         </div>
+                                        <div className="flex items-center gap-4 mt-auto pt-4 border-t border-primary-100 dark:border-gray-700">
+                                            {tribute.authorImage ? (
+                                                <img src={tribute.authorImage} alt={tribute.displayName} className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-700 shadow-sm" />
+                                            ) : (
+                                                <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center flex-shrink-0 border-2 border-primary-100 dark:border-gray-600 shadow-sm">
+                                                    <User className="w-6 h-6 text-gray-400" />
+                                                </div>
+                                            )}
+                                            <div>
+                                                <h4 className="font-bold text-gray-900 dark:text-white">
+                                                    {tribute.displayName}
+                                                </h4>
+                                                <p className="text-sm text-primary-600 dark:text-primary-400 font-medium">
+                                                    {tribute.designation}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                )) : (
+                                    <p className="text-center text-gray-500 w-full py-10">কোনো বিশিষ্টজনের শোকবার্তা পাওয়া যায়নি</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -180,9 +200,9 @@ export default function TributesClient({ tributes }: { tributes: Tribute[] }) {
                         </div>
 
                         {/* Tribute Grid */}
-                        {filteredTributes.length > 0 ? (
+                        {filteredReaderTributes.length > 0 ? (
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {filteredTributes.map((tribute) => (
+                                {filteredReaderTributes.map((tribute) => (
                                     <article
                                         key={tribute.id}
                                         className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow"
@@ -193,24 +213,22 @@ export default function TributesClient({ tributes }: { tributes: Tribute[] }) {
                                         <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
                                             <div className="flex items-center gap-3">
                                                 {tribute.authorImage ? (
-                                                    <img src={tribute.authorImage} alt={tribute.author} className="w-10 h-10 rounded-full object-cover" />
+                                                    <img src={tribute.authorImage} alt={tribute.displayName} className="w-10 h-10 rounded-full object-cover" />
                                                 ) : (
-                                                    <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                                                        <User className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                                                    <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center font-bold text-emerald-600 dark:text-emerald-400">
+                                                        {tribute.displayName?.charAt(0)}
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <h4 className="font-medium text-gray-900 dark:text-white text-sm">
-                                                        {tribute.author}
+                                                    <h4 className="font-bold text-gray-900 dark:text-white">
+                                                        {tribute.displayName}
                                                     </h4>
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                        {tribute.location}
-                                                    </p>
+                                                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                                                        <span>{tribute.location}</span>
+                                                        <span>•</span>
+                                                        <span>{tribute.date}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex items-center gap-1 text-xs text-gray-400">
-                                                <Calendar className="w-3 h-3" />
-                                                <span>{tribute.date}</span>
                                             </div>
                                         </div>
                                     </article>

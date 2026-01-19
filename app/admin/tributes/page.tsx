@@ -5,7 +5,7 @@ async function getTributes() {
     return prisma.tribute.findMany({
         include: {
             author: {
-                select: { name: true, email: true }
+                select: { name: true, email: true, image: true }
             }
         },
         orderBy: { createdAt: 'desc' },

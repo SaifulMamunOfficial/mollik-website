@@ -256,9 +256,15 @@ export async function getTributesFromDB() {
     return tributes.map(t => ({
         id: t.id,
         content: t.content,
-        author: t.author.name || t.author.email,
+        district: t.district || null,
+        author: t.author, // Return full author object for Admin
+        displayName: t.name || t.author.name || t.author.email, // For Public display
+        designation: t.designation || undefined,
+        displayOption: t.displayOption || 'DISTRICT',
+        manualDate: t.manualDate ? t.manualDate.toISOString() : null,
+        isFeatured: t.isFeatured,
         authorImage: t.author.image || undefined,
-        date: t.createdAt.toLocaleDateString('bn-BD'),
+        date: (t.manualDate || t.createdAt).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' }),
         createdAt: t.createdAt.toISOString()
     }))
 }

@@ -14,7 +14,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json()
-        const { content } = body
+        const { content, district } = body
 
         if (!content || content.trim().length < 10) {
             return NextResponse.json(
@@ -26,6 +26,7 @@ export async function POST(req: Request) {
         const tribute = await prisma.tribute.create({
             data: {
                 content: content.trim(),
+                district: district || null,
                 status: 'PENDING',
                 authorId: session.user.id,
             },

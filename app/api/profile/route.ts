@@ -69,6 +69,19 @@ export async function GET() {
             },
         });
 
+        // Get user's tributes
+        const tributes = await prisma.tribute.findMany({
+            where: { authorId: session.user.id },
+            orderBy: { createdAt: "desc" },
+            take: 10,
+            select: {
+                id: true,
+                content: true,
+                status: true,
+                createdAt: true,
+            },
+        });
+
         // Get user's comments (recent activity)
         const recentComments = await prisma.comment.findMany({
             where: { userId: session.user.id },
@@ -115,15 +128,30 @@ export async function GET() {
                     views: totalViews,
                 },
             },
-            submissions: blogPosts.map((post) => ({
-                id: post.id,
-                slug: post.slug,
-                title: post.title,
-                type: post.category?.name || "ব্লগ",
-                status: post.status.toLowerCase(),
-                date: formatBengaliDate(post.createdAt),
-                views: post.views,
-            })),
+            submissions: [
+                ...blogPosts.map((post) => ({
+                    id: post.id,
+                    slug: post.slug,
+                    title: post.title,
+                    type: post.category?.name || "ব্লগ",
+                    status: post.status.toLowerCase(),
+                    date: formatBengaliDate(post.createdAt),
+                    createdAt: post.createdAt.getTime(),
+                    views: post.views,
+                })),
+                ...tributes.map((tribute) => ({
+                    id: tribute.id,
+                    slug: tribute.id,
+                    title: tribute.content.length > 50
+                        ? tribute.content.substring(0, 50) + "..."
+                        : tribute.content,
+                    type: "শোকবার্তা",
+                    status: tribute.status.toLowerCase(),
+                    date: formatBengaliDate(tribute.createdAt),
+                    createdAt: tribute.createdAt.getTime(),
+                    views: 0,
+                })),
+            ].sort((a, b) => b.createdAt - a.createdAt),
             recentActivity: recentComments.map((comment) => ({
                 id: comment.id,
                 action: "মন্তব্য করেছেন",

@@ -79,6 +79,7 @@ const typeIcons: Record<string, { icon: React.ComponentType<{ className?: string
     "গদ্য": { icon: BookOpen, gradient: "from-blue-500 to-cyan-600" },
     "ব্লগ": { icon: MessageSquare, gradient: "from-orange-500 to-red-600" },
     "গান": { icon: Sparkles, gradient: "from-pink-500 to-rose-600" },
+    "শোকবার্তা": { icon: Heart, gradient: "from-rose-500 to-pink-600" },
 };
 
 export default function ProfilePage() {

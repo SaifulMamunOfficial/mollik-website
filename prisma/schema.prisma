@@ -217,12 +217,18 @@ model Comment {
 
 model Tribute {
   id        String   @id @default(cuid())
-  content   String   @db.Text
-  status    Status   @default(PENDING)
-  createdAt DateTime @default(now())
+  content     String   @db.Text
+  district    String?  // User's selected district (জেলা)
+  name        String?  // Manual entry: Guest/Offline Author Name
+  designation String?  // Manual entry: Designation/Title
+  manualDate  DateTime? // Manual entry: Custom date
+  isFeatured  Boolean  @default(false) // Elite/VIP Tribute
+  displayOption String @default("DISTRICT") // "DISTRICT" or "DESIGNATION"
+  status      Status   @default(PENDING)
+  createdAt   DateTime @default(now())
 
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
 }
 
 // ==================== MEDIA ====================
