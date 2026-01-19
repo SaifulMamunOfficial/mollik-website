@@ -133,9 +133,8 @@ export default function GalleryForm({ initialData }: GalleryFormProps) {
                         <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">ছবি আপলোড</h3>
                             <ImageUpload
-                                value={imageUrl ? [imageUrl] : []}
+                                value={imageUrl || ''}
                                 onChange={(url) => setValue('url', url, { shouldValidate: true })}
-                                onRemove={() => setValue('url', '', { shouldValidate: true })}
                             />
                             {errors.url && (
                                 <p className="text-red-500 text-sm mt-2">ছবি প্রয়োজন</p>
