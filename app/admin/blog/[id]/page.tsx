@@ -36,6 +36,8 @@ export default async function AdminEditBlogPage({ params }: Props) {
         tags: post.tags,
         status: post.status,
         featured: post.featured,
+        authorId: post.authorId,
+        publishedAt: post.publishedAt ? post.publishedAt.toISOString() : undefined,
     }
 
     return <BlogForm initialData={initialData} />

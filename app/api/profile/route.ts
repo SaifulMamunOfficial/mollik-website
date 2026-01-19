@@ -100,6 +100,28 @@ export async function GET() {
             },
         });
 
+        // Get user's liked posts
+        const likedposts = await prisma.like.findMany({
+            where: { userId: session.user.id, blogPostId: { not: null } },
+            orderBy: { createdAt: "desc" },
+            take: 20,
+            include: {
+                blogPost: {
+                    select: {
+                        id: true,
+                        slug: true,
+                        title: true,
+                        status: true,
+                        views: true,
+                        createdAt: true,
+                        category: {
+                            select: { name: true },
+                        },
+                    },
+                },
+            },
+        });
+
         // Calculate total views on user's posts
         const totalViews = blogPosts.reduce((sum, post) => sum + post.views, 0);
 
@@ -152,6 +174,15 @@ export async function GET() {
                     views: 0,
                 })),
             ].sort((a, b) => b.createdAt - a.createdAt),
+            favorites: likedposts.map((like) => ({
+                id: like.blogPost!.id,
+                slug: like.blogPost!.slug,
+                title: like.blogPost!.title,
+                type: like.blogPost!.category?.name || "ব্লগ",
+                status: like.blogPost!.status.toLowerCase(),
+                date: formatBengaliDate(like.blogPost!.createdAt),
+                views: like.blogPost!.views,
+            })),
             recentActivity: recentComments.map((comment) => ({
                 id: comment.id,
                 action: "মন্তব্য করেছেন",

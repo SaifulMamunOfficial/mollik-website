@@ -92,6 +92,7 @@ export default function ProfilePage() {
     // Profile data state
     const [user, setUser] = useState<UserProfile | null>(null);
     const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [favorites, setFavorites] = useState<Submission[]>([]);
     const [activities, setActivities] = useState<Activity[]>([]);
 
     // Fetch profile data
@@ -108,7 +109,7 @@ export default function ProfilePage() {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await fetch("/api/profile");
+                const response = await fetch("/api/profile", { cache: "no-store" });
 
                 if (!response.ok) {
                     throw new Error("প্রোফাইল লোড করতে সমস্যা হয়েছে");
@@ -117,6 +118,7 @@ export default function ProfilePage() {
                 const data = await response.json();
                 setUser(data.user);
                 setSubmissions(data.submissions || []);
+                setFavorites(data.favorites || []);
                 setActivities(data.recentActivity || []);
             } catch (err) {
                 setError(err instanceof Error ? err.message : "একটি সমস্যা হয়েছে");
@@ -130,7 +132,7 @@ export default function ProfilePage() {
 
     const tabs = [
         { id: "submissions" as TabType, label: "আমার লেখা", icon: FileText, count: submissions.length },
-        { id: "favorites" as TabType, label: "প্রিয় তালিকা", icon: Heart, count: 0 },
+        { id: "favorites" as TabType, label: "প্রিয় তালিকা", icon: Heart, count: favorites.length },
         { id: "activity" as TabType, label: "কার্যকলাপ", icon: Clock, count: activities.length },
     ];
 
@@ -377,11 +379,71 @@ export default function ProfilePage() {
                             )}
 
                             {/* Favorites Tab */}
+                            {/* Favorites Tab */}
                             {activeTab === "favorites" && (
-                                <div className="col-span-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-16 text-center border border-gray-100 dark:border-gray-700">
-                                    <Heart className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-                                    <p className="text-gray-500 dark:text-gray-400">প্রিয় তালিকায় কিছু নেই</p>
-                                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">শীঘ্রই এই ফিচার চালু হবে</p>
+                                <div className="space-y-4">
+                                    {favorites.length > 0 ? (
+                                        favorites.map((item, index) => {
+                                            const status = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.published;
+                                            const typeConfig = typeIcons[item.type] || typeIcons["ব্লগ"];
+                                            const TypeIcon = typeConfig.icon;
+
+                                            return (
+                                                <Link
+                                                    href={`/blog/${item.slug}`}
+                                                    key={item.id}
+                                                    className="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700"
+                                                    style={{ animationDelay: `${index * 100}ms` }}
+                                                >
+                                                    <div className="p-5 md:p-6">
+                                                        <div className="flex items-start gap-4">
+                                                            {/* Icon */}
+                                                            <div className={`w-14 h-14 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
+                                                                <Heart className="w-7 h-7 text-white fill-current" />
+                                                            </div>
+
+                                                            {/* Content */}
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                                    <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full font-medium">
+                                                                        {item.type}
+                                                                    </span>
+                                                                    <span className="text-xs px-2.5 py-1 bg-rose-50 text-rose-600 rounded-full font-medium">
+                                                                        পছন্দ করা হয়েছে
+                                                                    </span>
+                                                                </div>
+                                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-gold-400 transition-colors">
+                                                                    {item.title}
+                                                                </h3>
+                                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                                    প্রকাশিত: {item.date}
+                                                                </p>
+
+                                                                {/* Stats Row */}
+                                                                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                                                    <span className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                                                                        <Eye className="w-4 h-4" />
+                                                                        {item.views} বার দেখা হয়েছে
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Actions */}
+                                                            <div className="flex items-center gap-2">
+                                                                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="col-span-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-16 text-center border border-gray-100 dark:border-gray-700">
+                                            <Heart className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+                                            <p className="text-gray-500 dark:text-gray-400">প্রিয় তালিকায় কিছু নেই</p>
+                                            <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">আপনি যেসব পোস্টে লাইক করবেন সেগুলো এখানে থাকবে</p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

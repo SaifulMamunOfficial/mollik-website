@@ -3,11 +3,22 @@ import BlogClient from './BlogClient'
 
 async function getBlogPosts() {
     return prisma.blogPost.findMany({
-        include: {
+        select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            coverImage: true,
+            status: true,
+            featured: true,
+            views: true,
+            createdAt: true,
             author: {
                 select: { name: true, email: true }
             },
-            category: true
+            category: {
+                select: { name: true }
+            }
         },
         orderBy: { createdAt: 'desc' },
     })

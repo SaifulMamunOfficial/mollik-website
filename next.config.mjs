@@ -19,8 +19,15 @@ const nextConfig = {
                 hostname: 'picsum.photos',
             },
             {
-                protocol: 'https',
                 hostname: 'img.youtube.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'www.somodhara.com',
+            },
+            {
+                protocol: 'https',
+                hostname: '**',
             },
         ],
         // Image optimization settings

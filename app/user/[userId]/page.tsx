@@ -246,7 +246,8 @@ export default function PublicProfilePage() {
                                 <div className="mb-3">
                                     <span className="flex items-center gap-1 px-3 py-1 bg-gold-500/20 text-gold-400 text-xs font-medium rounded-full border border-gold-500/30 w-fit md:mx-0 mx-auto">
                                         <Award className="w-3 h-3" />
-                                        {user.role === "ADMIN" ? "অ্যাডমিন" : "সদস্য"}
+                                        <Award className="w-3 h-3" />
+                                        সদস্য
                                     </span>
                                 </div>
                                 {user.bio && (

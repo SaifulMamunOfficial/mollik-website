@@ -39,6 +39,7 @@ model User {
   blogPosts     BlogPost[]
   comments      Comment[]
   tributes      Tribute[]
+  likes         Like[]
 
   // Social
   followedBy    User[]     @relation("UserFollows")
@@ -130,7 +131,7 @@ model Writing {
   type        WritingType
   content     String      @db.Text
   excerpt     String?     @db.Text
-  readTime    String?
+
   year        String?
   composer    String?     // For songs
   views       Int         @default(0)
@@ -148,6 +149,7 @@ model Writing {
   authorId    String?
   author      User?       @relation(fields: [authorId], references: [id])
   comments    Comment[]
+  likesList   Like[]
 
   @@index([type, status])
   @@index([bookId])
@@ -176,7 +178,7 @@ model BlogPost {
   excerpt     String    @db.Text
   content     String    @db.Text
   coverImage  String?
-  readTime    String?
+
   views       Int       @default(0)
   featured    Boolean   @default(false)
   status      Status    @default(PENDING)
@@ -191,6 +193,7 @@ model BlogPost {
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id])
   comments    Comment[]
+  likes       Like[]
 
   @@index([status, featured])
   @@index([authorId])
@@ -213,6 +216,26 @@ model Comment {
 
   @@index([writingId])
   @@index([blogPostId])
+}
+
+model Like {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  blogPostId  String?
+  blogPost    BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+
+  writingId   String?
+  writing     Writing? @relation(fields: [writingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogPostId])
+  @@unique([userId, writingId])
+  @@index([userId])
+  @@index([blogPostId])
+  @@index([writingId])
 }
 
 model Tribute {

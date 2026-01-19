@@ -222,7 +222,6 @@ export async function GET(
                 name: user.name,
                 image: user.image,
                 bio: user.bio,
-                role: user.role,
                 joinDate: joinDateFormatted,
                 isFollowing, // New Field
                 stats: {

@@ -37,6 +37,12 @@ export default async function BlogDetailPage({ params }: PageProps) {
         notFound();
     }
 
+    // Increment view count (non-blocking)
+    prisma.blogPost.update({
+        where: { id: post.id },
+        data: { views: { increment: 1 } }
+    }).catch(() => { /* ignore errors */ });
+
     // Fetch related posts (same category, different id)
     const relatedPostsData = await prisma.blogPost.findMany({
         where: {
@@ -62,7 +68,6 @@ export default async function BlogDetailPage({ params }: PageProps) {
         content: post.content,
         coverImage: post.coverImage || "",
         publishedAt: formatDate(post.publishedAt || post.createdAt),
-        readTime: post.readTime || "5 মিনিট",
         category: post.category?.name || "সাধারণ",
         tags: post.tags || [],
         author: {
@@ -82,7 +87,6 @@ export default async function BlogDetailPage({ params }: PageProps) {
         content: p.content,
         coverImage: p.coverImage || "",
         publishedAt: formatDate(p.publishedAt || p.createdAt),
-        readTime: p.readTime || "5 মিনিট",
         category: "সম্পর্কিত", // Not currently used in related card
         tags: [],
         author: {

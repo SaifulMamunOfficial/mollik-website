@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { CommentSection } from "@/components/comments/CommentSection";
 import { Calendar, Eye, Share2, Heart, ArrowLeft, Clock, User, Facebook, Twitter, Linkedin, Copy, Check } from "lucide-react";
 
 // Types matching the simplified prop structure from the server component
@@ -16,7 +17,6 @@ interface EnhancedBlogPost {
     content: string;
     coverImage: string;
     publishedAt: string;
-    readTime: string;
     category: string;
     tags: string[];
     author: {
@@ -33,9 +33,18 @@ interface BlogPostContentProps {
     relatedPosts: EnhancedBlogPost[];
 }
 
+import { AuthModal } from "@/components/shared/AuthModal";
+
 export default function BlogPostContent({ post, relatedPosts }: BlogPostContentProps) {
+    // Scroll & Copy State
     const [copied, setCopied] = useState(false);
     const [scrolled, setScrolled] = useState(0);
+
+    // Like State
+    const [likeCount, setLikeCount] = useState(0);
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeLoading, setLikeLoading] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
 
     // Handle scroll progress
     useEffect(() => {
@@ -54,8 +63,79 @@ export default function BlogPostContent({ post, relatedPosts }: BlogPostContentP
         setTimeout(() => setCopied(false), 2000);
     };
 
+    // Initial check for like status
+    useEffect(() => {
+        const checkLikeStatus = async () => {
+            try {
+                const res = await fetch(`/api/blog/${post.slug}/like`, {
+                    cache: 'no-store',
+                    headers: {
+                        'Pragma': 'no-cache',
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setLikeCount(data.likeCount);
+                    setIsLiked(data.isLiked);
+                }
+            } catch (error) {
+                console.error("Error checking like status:", error);
+            }
+        };
+        checkLikeStatus();
+    }, [post.slug]);
+
+    const handleLike = async () => {
+        setLikeLoading(true);
+        // Optimistic UI update
+        const previousLiked = isLiked;
+        const previousCount = likeCount;
+
+        setIsLiked(!isLiked);
+        setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+
+        try {
+            const res = await fetch(`/api/blog/${post.slug}/like`, {
+                method: 'POST',
+                cache: 'no-store'
+            });
+
+            if (!res.ok) {
+                if (res.status === 401) {
+                    // Revert state
+                    setIsLiked(previousLiked);
+                    setLikeCount(previousCount);
+                    // Show Auth Modal
+                    setShowAuthModal(true);
+                    return;
+                }
+                throw new Error("Failed to like");
+            }
+
+            const data = await res.json();
+            // Sync with server source of truth
+            setLikeCount(data.likeCount);
+            setIsLiked(data.isLiked);
+
+        } catch (error) {
+            // Revert state on error
+            setIsLiked(previousLiked);
+            setLikeCount(previousCount);
+        } finally {
+            setLikeLoading(false);
+        }
+    };
+
     return (
         <>
+            <AuthModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                title="লগইন প্রয়োজন"
+                message="পোস্টে লাইক দিতে বা প্রতিক্রিয়া জানাতে অনুগ্রহ করে লগইন করুন।"
+            />
+
             {/* Reading Progress Bar */}
             <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-800 z-[100]">
                 <div
@@ -110,10 +190,19 @@ export default function BlogPostContent({ post, relatedPosts }: BlogPostContentP
                                     <Calendar className="w-5 h-5" />
                                     {post.publishedAt}
                                 </span>
-                                <span className="flex items-center gap-2">
-                                    <Clock className="w-5 h-5" />
-                                    {post.readTime}
-                                </span>
+
+                                {/* Hero Like Button */}
+                                <button
+                                    onClick={handleLike}
+                                    disabled={likeLoading}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md transition-all ${isLiked
+                                        ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                                        : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
+                                        }`}
+                                >
+                                    <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+                                    <span className="text-sm font-medium">{new Intl.NumberFormat('bn-BD').format(likeCount)}</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -132,30 +221,28 @@ export default function BlogPostContent({ post, relatedPosts }: BlogPostContentP
                                 </div>
                             </div>
 
-                            {/* Tags */}
-                            <div className="flex flex-wrap gap-2 mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
-                                {post.tags && post.tags.map(tag => (
-                                    <span key={tag} className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full text-sm">
-                                        #{tag}
-                                    </span>
-                                ))}
-                            </div>
+                            {/* Tags & Share - Single Line */}
+                            <div className="flex flex-wrap items-center justify-between gap-4 mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
+                                {/* Tags */}
+                                <div className="flex flex-wrap gap-2">
+                                    {post.tags && post.tags.map(tag => (
+                                        <span key={tag} className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full text-sm">
+                                            #{tag}
+                                        </span>
+                                    ))}
+                                </div>
 
-                            {/* Share Section */}
-                            <div className="flex items-center justify-between mt-8 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                                <span className="font-bold text-gray-900 dark:text-white">শেয়ার করুন:</span>
-                                <div className="flex gap-3">
-                                    <button onClick={handleCopy} className="p-2 rounded-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors border border-gray-200 dark:border-gray-700" title="Copy Link">
-                                        {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                                {/* Share Buttons */}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mr-1">শেয়ার:</span>
+                                    <button onClick={handleCopy} className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors" title="Copy Link">
+                                        {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                                     </button>
                                     <button className="p-2 rounded-full bg-[#1877F2]/10 hover:bg-[#1877F2]/20 text-[#1877F2] transition-colors">
-                                        <Facebook className="w-5 h-5" />
+                                        <Facebook className="w-4 h-4" />
                                     </button>
                                     <button className="p-2 rounded-full bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 text-[#1DA1F2] transition-colors">
-                                        <Twitter className="w-5 h-5" />
-                                    </button>
-                                    <button className="p-2 rounded-full bg-[#0A66C2]/10 hover:bg-[#0A66C2]/20 text-[#0A66C2] transition-colors">
-                                        <Linkedin className="w-5 h-5" />
+                                        <Twitter className="w-4 h-4" />
                                     </button>
                                 </div>
                             </div>
@@ -224,6 +311,11 @@ export default function BlogPostContent({ post, relatedPosts }: BlogPostContentP
                                 </div>
                             )}
                         </aside>
+                    </div>
+
+                    {/* Comment Section - Outside Grid */}
+                    <div className="mt-12 max-w-4xl">
+                        <CommentSection blogPostId={post.id} title="পাঠকদের মন্তব্য" />
                     </div>
                 </div>
             </main>

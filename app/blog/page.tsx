@@ -67,13 +67,10 @@ export default function BlogListingPage() {
         return matchesSearch && matchesCategory;
     });
 
-    // Get featured posts (1 main + 2 side)
-    // Logic: If less than 3 featured posts, fill with recent non-featured posts
-    let featuredList = posts.filter(post => post.featured);
-    if (featuredList.length < 3) {
-        const nonFeatured = posts.filter(post => !post.featured);
-        featuredList = [...featuredList, ...nonFeatured].slice(0, 3);
-    }
+    // Layout Logic:
+    // Hero Section: Show the latest 3 posts (regardless of featured status)
+    // This honors the user request: "blog page e publishing time onujayi sajano hobe"
+    const featuredList = posts.slice(0, 3);
 
     // Sort logic could go here if needed, but assuming API returns createdDesc
 

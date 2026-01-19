@@ -32,10 +32,7 @@ export async function GET(request: Request) {
             }
         });
 
-        // Normalize data to match frontend expectations if needed, 
-        // but it's better to verify what frontend expects.
-        // Frontend expects: slug, title, excerpt, coverImage, category (string name), author (obj), publishedAt, readTime
-
+        // Normalize data
         const normalizedPosts = posts.map(post => ({
             id: post.id,
             slug: post.slug,
@@ -53,8 +50,13 @@ export async function GET(request: Request) {
                 role: post.author.role,
                 bio: post.author.bio
             },
-            category: post.category?.name || "সাধারণ", // Flatten category name
+            category: post.category?.name || "সাধারণ",
         }));
+
+        // Sort by publishedAt (Latest first) manually to handle nulls safely
+        normalizedPosts.sort((a, b) => {
+            return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+        });
 
         return NextResponse.json(normalizedPosts);
     } catch (error) {
