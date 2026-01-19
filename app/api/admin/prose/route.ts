@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json()
-        const { title, slug, content, excerpt, categoryId, bookId, year, status, readTime } = body
+        const { title, slug, content, excerpt, categoryId, bookId, year, status } = body
 
         // Validate required fields
         if (!title || !slug || !content) {
@@ -60,7 +60,6 @@ export async function POST(request: NextRequest) {
                 year: year || null,
                 categoryId: categoryId || null,
                 bookId: bookId || null,
-                readTime: readTime || null, // Specific to essays
                 authorId: session.user.id,
             },
         })

@@ -41,7 +41,7 @@ export async function GET(request: Request) {
             content: post.content,
             coverImage: post.coverImage,
             publishedAt: post.publishedAt || post.createdAt,
-            readTime: post.readTime || "5 মিনিট",
+            readTime: "5 মিনিট",
             views: post.views,
             featured: post.featured,
             author: {

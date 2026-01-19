@@ -35,7 +35,7 @@ export default async function BookDetailPage({ params }: PageProps) {
     const formattedWritings = writings.map(w => ({
         ...w,
         type: (w.type === 'কবিতা' || w.type === 'গান' || w.type === 'প্রবন্ধ') ? w.type : 'কবিতা', // Fallback safely
-        readTime: w.readTime || '5 min'
+        readTime: '5 min'
     }));
 
     return (

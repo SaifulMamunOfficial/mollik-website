@@ -31,7 +31,7 @@ export default async function ProseDetailPage({ params }: PageProps) {
         year: essay.year || "",
         views: essay.views || 0,
         likes: essay.likes || 0,
-        readTime: essay.readTime || "5 মিনিট"
+        readTime: "5 মিনিট"
     };
 
     return (

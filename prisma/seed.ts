@@ -315,7 +315,6 @@ async function main() {
                 excerpt: post.excerpt,
                 content: post.content,
                 coverImage: post.coverImage,
-                readTime: post.readTime,
                 views: post.views,
                 featured: post.featured,
                 status: Status.PUBLISHED,

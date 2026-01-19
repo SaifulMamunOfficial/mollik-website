@@ -71,7 +71,6 @@ export async function PATCH(
                 tags,
                 status,
                 publishedAt: publishedAt ? new Date(publishedAt) : undefined,
-                readTime: body.readTime,
                 categoryId: categoryId || null,
                 featured,
                 authorId: (['ADMIN', 'SUPER_ADMIN'].includes(session.user.role) && body.authorId) ? body.authorId : undefined,

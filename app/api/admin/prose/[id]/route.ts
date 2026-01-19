@@ -40,7 +40,7 @@ export async function PUT(
         }
 
         const body = await request.json()
-        let { title, slug, content, excerpt, categoryId, bookId, year, status, readTime } = body
+        let { title, slug, content, excerpt, categoryId, bookId, year, status } = body
 
         const existingEssay = await prisma.writing.findUnique({
             where: { id: params.id },
@@ -78,7 +78,6 @@ export async function PUT(
                 year: year || null,
                 categoryId: categoryId || null,
                 bookId: bookId || null,
-                readTime: readTime || null,
             },
         })
 

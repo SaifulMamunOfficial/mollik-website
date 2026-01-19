@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         const session = await auth();
@@ -101,7 +103,8 @@ export async function GET() {
         });
 
         // Get user's liked posts
-        const likedposts = await prisma.like.findMany({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const likedposts = await (prisma as any).like.findMany({
             where: { userId: session.user.id, blogPostId: { not: null } },
             orderBy: { createdAt: "desc" },
             take: 20,
@@ -174,7 +177,7 @@ export async function GET() {
                     views: 0,
                 })),
             ].sort((a, b) => b.createdAt - a.createdAt),
-            favorites: likedposts.map((like) => ({
+            favorites: likedposts.map((like: any) => ({
                 id: like.blogPost!.id,
                 slug: like.blogPost!.slug,
                 title: like.blogPost!.title,

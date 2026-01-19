@@ -24,7 +24,7 @@ export async function getPoemsFromDB() {
         content: w.content,
         excerpt: w.excerpt || undefined,
         bookSlug: w.book?.slug,
-        readTime: w.readTime || undefined,
+        readTime: "5 মিনিট",
         category: w.category?.name,
         categoryId: w.category?.slug,
         year: w.year || undefined,
@@ -55,7 +55,7 @@ export async function getSongsFromDB() {
         content: w.content,
         excerpt: w.excerpt || undefined,
         bookSlug: w.book?.slug,
-        readTime: w.readTime || undefined,
+        readTime: "5 মিনিট",
         category: w.category?.name,
         categoryId: w.category?.slug,
         year: w.year || undefined,
@@ -85,7 +85,7 @@ export async function getWritingBySlugFromDB(slug: string) {
         content: writing.content,
         excerpt: writing.excerpt || undefined,
         bookSlug: writing.book?.slug,
-        readTime: writing.readTime || undefined,
+        readTime: "5 মিনিট",
         category: writing.category?.name,
         categoryId: writing.category?.slug,
         year: writing.year || undefined,
@@ -171,7 +171,7 @@ export async function getWritingsByBookSlugFromDB(slug: string) {
         kind: w.type.toLowerCase() as 'poem' | 'song' | 'essay',
         content: w.content,
         excerpt: w.excerpt || undefined,
-        readTime: w.readTime || undefined,
+        readTime: "5 মিনিট",
         views: w.views,
         year: w.year || undefined
     }))
@@ -205,7 +205,7 @@ export async function getBlogPostsFromDB() {
         status: p.status.toLowerCase() as 'published' | 'pending' | 'draft',
         category: p.category?.name || 'General',
         tags: p.tags,
-        readTime: p.readTime || '5 মিনিট',
+        readTime: '5 মিনিট',
         featured: p.featured,
         views: p.views
     }))
@@ -233,7 +233,7 @@ export async function getEssaysFromDB() {
         content: w.content,
         excerpt: w.excerpt || undefined,
         bookSlug: w.book?.slug,
-        readTime: w.readTime || undefined,
+        readTime: "5 মিনিট",
         category: w.category?.name,
         categoryId: w.category?.slug,
         year: w.year || undefined,

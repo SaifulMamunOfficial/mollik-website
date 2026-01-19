@@ -67,7 +67,7 @@ export async function GET(
                 year: writing.year,
                 views: writing.views + 1,
                 likes: writing.likes,
-                readTime: writing.readTime,
+                readTime: "5 মিনিট",
                 composer: writing.composer,
                 commentCount: writing._count.comments,
             },

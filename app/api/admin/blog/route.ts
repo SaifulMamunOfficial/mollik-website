@@ -64,7 +64,6 @@ export async function POST(request: NextRequest) {
                 tags: tags || [],
                 status: status || 'PENDING',
                 publishedAt: publishedAt ? new Date(publishedAt) : (status === 'PUBLISHED' ? new Date() : null),
-                readTime: body.readTime || null,
                 categoryId: categoryId || null,
                 authorId: (['ADMIN', 'SUPER_ADMIN'].includes(session.user.role) && body.authorId) ? body.authorId : session.user.id,
             },

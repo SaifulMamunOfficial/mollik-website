@@ -48,7 +48,6 @@ export default async function EditProsePage({ params }: Props) {
                 slug: essay.slug,
                 content: essay.content,
                 excerpt: essay.excerpt || undefined,
-                readTime: essay.readTime || undefined,
                 categoryId: essay.categoryId || undefined,
                 bookId: essay.bookId || undefined,
                 year: essay.year || undefined,

@@ -51,7 +51,6 @@ export default async function ProsePage() {
                     slug: essay.slug,
                     status: essay.status,
                     views: essay.views,
-                    readTime: essay.readTime,
                     category: essay.category ? { name: essay.category.name } : null,
                     book: essay.book ? { title: essay.book.title } : null
                 }))}
