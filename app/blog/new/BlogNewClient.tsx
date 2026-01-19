@@ -32,6 +32,7 @@ import {
     Lightbulb,
     Film,
 } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 // Submission types - all centered around the poet
 const submissionTypes = [
@@ -193,6 +194,7 @@ export default function SubmitPage() {
     // Photo specific states
     const [photoYear, setPhotoYear] = useState(""); // সাল
     const [photoLocation, setPhotoLocation] = useState(""); // স্থান
+    const [showLoginModal, setShowLoginModal] = useState(false); // Login prompt modal
 
     const selectedType = submissionTypes.find(t => t.id === submissionType);
     const categories = submissionType ? categoryOptions[submissionType] || [] : [];
@@ -547,7 +549,15 @@ export default function SubmitPage() {
 
                             <div className="mt-6 md:mt-8 flex justify-center">
                                 <button
-                                    onClick={() => submissionType && setStep(2)}
+                                    onClick={() => {
+                                        if (!session?.user) {
+                                            setShowLoginModal(true);
+                                            return;
+                                        }
+                                        if (submissionType) {
+                                            setStep(2);
+                                        }
+                                    }}
                                     disabled={!submissionType}
                                     className="px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-primary-950 font-semibold rounded-xl transition-all shadow-lg shadow-gold-500/30 hover:shadow-gold-500/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                 >
@@ -984,6 +994,41 @@ export default function SubmitPage() {
                     )}
                 </div>
             </main>
+
+            {/* Login Required Modal */}
+            {showLoginModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center animate-in zoom-in-95 duration-200">
+                        <div className="w-20 h-20 bg-gradient-to-br from-gold-400 to-gold-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                            <User className="w-10 h-10 text-primary-950" />
+                        </div>
+
+                        <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-white mb-3">
+                            লগইন করুন
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                            লেখা পাঠাতে আগে আপনাকে লগইন করতে হবে। লগইন করলে আপনার সব লেখা আপনার প্রোফাইলে সংরক্ষিত থাকবে।
+                        </p>
+
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={() => signIn()}
+                                className="w-full px-6 py-3.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+                            >
+                                <User className="w-5 h-5" />
+                                লগইন করুন
+                            </button>
+                            <button
+                                onClick={() => setShowLoginModal(false)}
+                                className="w-full px-6 py-3 text-gray-600 dark:text-gray-400 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all"
+                            >
+                                পরে করব
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Footer />
         </>
     );
