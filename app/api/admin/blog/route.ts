@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
                 status: status || 'PENDING',
                 publishedAt: publishedAt ? new Date(publishedAt) : (status === 'PUBLISHED' ? new Date() : null),
                 readTime: body.readTime || null,
-                categoryId,
+                categoryId: categoryId || null,
                 authorId: (['ADMIN', 'SUPER_ADMIN'].includes(session.user.role) && body.authorId) ? body.authorId : session.user.id,
             },
         })
