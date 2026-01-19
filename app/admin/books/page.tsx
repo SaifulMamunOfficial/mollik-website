@@ -1,5 +1,5 @@
+import BookListClient from '@/components/admin/BookListClient'
 import prisma from '@/lib/prisma'
-import BooksTable from '@/components/admin/BooksTable'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,5 +17,21 @@ async function getBooks() {
 export default async function BooksPage() {
     const books = await getBooks()
 
-    return <BooksTable books={books as any} />
+    // Transform data to match client interface
+    const formattedBooks = books.map(b => ({
+        id: b.id,
+        title: b.title,
+        slug: b.slug,
+        subtitle: b.subtitle,
+        publisher: b.publisher,
+        year: b.year,
+        coverImage: b.coverImage,
+        writingsCount: b._count.writings
+    }))
+
+    return (
+        <div className="space-y-6">
+            <BookListClient books={formattedBooks} />
+        </div>
+    )
 }

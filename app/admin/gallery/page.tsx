@@ -1,5 +1,7 @@
+import GalleryListClient from '@/components/admin/GalleryListClient'
 import prisma from '@/lib/prisma'
-import GalleryClient from '@/components/admin/GalleryClient'
+
+export const dynamic = 'force-dynamic'
 
 async function getGalleryImages() {
     return prisma.galleryImage.findMany({
@@ -10,5 +12,7 @@ async function getGalleryImages() {
 export default async function GalleryPage() {
     const images = await getGalleryImages()
 
-    return <GalleryClient images={images} />
+    return (
+        <GalleryListClient images={images} />
+    )
 }
