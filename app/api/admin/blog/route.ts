@@ -63,9 +63,10 @@ export async function POST(request: NextRequest) {
                 coverImage,
                 tags: tags || [],
                 status: status || 'PENDING',
-                publishedAt: publishedAt ? new Date(publishedAt) : null,
+                publishedAt: publishedAt ? new Date(publishedAt) : (status === 'PUBLISHED' ? new Date() : null),
+                readTime: body.readTime || null,
                 categoryId,
-                authorId: session.user.id,
+                authorId: (['ADMIN', 'SUPER_ADMIN'].includes(session.user.role) && body.authorId) ? body.authorId : session.user.id,
             },
         })
 

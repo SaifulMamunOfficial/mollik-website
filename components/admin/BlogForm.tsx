@@ -24,6 +24,9 @@ interface BlogFormProps {
         tags: string[]
         status: string
         featured: boolean
+        readTime?: string
+        authorId?: string
+        publishedAt?: string
     }
 }
 
@@ -32,6 +35,8 @@ export default function BlogForm({ initialData }: BlogFormProps) {
     const [loading, setLoading] = useState(false)
     const [deleteLoading, setDeleteLoading] = useState(false)
     const [categories, setCategories] = useState<Category[]>([])
+    const [authors, setAuthors] = useState<{ id: string, name: string }[]>([])
+    const [uploading, setUploading] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState(false)
 
     const [formData, setFormData] = useState({
@@ -42,8 +47,11 @@ export default function BlogForm({ initialData }: BlogFormProps) {
         coverImage: initialData?.coverImage || '',
         categoryId: initialData?.categoryId || '',
         tags: initialData?.tags?.join(', ') || '',
-        status: initialData?.status || 'PUBLISHED',
-        featured: initialData?.featured || false
+        status: initialData?.status || 'PENDING',
+        featured: initialData?.featured || false,
+        readTime: initialData?.readTime || '',
+        authorId: initialData?.authorId || '',
+        publishedAt: initialData?.publishedAt ? new Date(initialData.publishedAt).toISOString().slice(0, 16) : ''
     })
 
     useEffect(() => {
@@ -52,7 +60,41 @@ export default function BlogForm({ initialData }: BlogFormProps) {
             .then(res => res.json())
             .then(data => setCategories(data))
             .catch(console.error)
+
+        // Fetch authors
+        fetch('/api/admin/users/list')
+            .then(res => res.json())
+            .then(data => setAuthors(data))
+            .catch(console.error)
     }, [])
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return
+
+        const file = e.target.files[0]
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('folder', 'blog')
+
+        setUploading(true)
+        try {
+            const res = await fetch('/api/admin/upload', {
+                method: 'POST',
+                body: formData
+            })
+            const data = await res.json()
+            if (res.ok) {
+                setFormData(prev => ({ ...prev, coverImage: data.url }))
+            } else {
+                alert(data.message || 'Upload failed')
+            }
+        } catch (error) {
+            console.error('Upload error:', error)
+            alert('Upload failed')
+        } finally {
+            setUploading(false)
+        }
+    }
 
     const handleGenerateSlug = (value: string) => {
         // Only auto-generate slug if it's a new post or if slug is empty
@@ -162,27 +204,47 @@ export default function BlogForm({ initialData }: BlogFormProps) {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         <Image className="inline mr-2" size={18} />
-                        কভার ইমেজ URL
+                        কভার ইমেজ
                     </label>
-                    <input
-                        type="url"
-                        value={formData.coverImage}
-                        onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                        placeholder="https://example.com/image.jpg"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    />
-                    {formData.coverImage && (
-                        <div className="mt-4">
-                            <img
-                                src={formData.coverImage}
-                                alt="Cover preview"
-                                className="w-full max-h-64 object-cover rounded-lg"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x400?text=Invalid+URL'
-                                }}
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <input
+                                type="url"
+                                value={formData.coverImage}
+                                onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
+                                placeholder="https://example.com/image.jpg"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 mb-2"
                             />
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                    id="cover-upload"
+                                    disabled={uploading}
+                                />
+                                <label
+                                    htmlFor="cover-upload"
+                                    className={`inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    {uploading ? 'আপলোড হচ্ছে...' : 'ছবি আপলোড করুন'}
+                                </label>
+                            </div>
                         </div>
-                    )}
+                        {formData.coverImage && (
+                            <div className="w-48 h-32 relative rounded-lg overflow-hidden border border-gray-200">
+                                <img
+                                    src={formData.coverImage}
+                                    alt="Cover preview"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x400?text=Invalid+URL'
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Title & Slug */}
@@ -250,6 +312,50 @@ export default function BlogForm({ initialData }: BlogFormProps) {
                     <p className="text-sm text-gray-500 mt-2">
                         Markdown ফরম্যাট ব্যবহার করতে পারেন: **বোল্ড**, *ইটালিক*, # শিরোনাম
                     </p>
+                </div>
+
+                {/* Meta Info */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                পড়ার সময় (উদাঃ ৫ মিনিট)
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.readTime}
+                                onChange={(e) => setFormData({ ...formData, readTime: e.target.value })}
+                                placeholder="৫ মিনিট"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                প্রকাশের তারিখ (ঐচ্ছিক)
+                            </label>
+                            <input
+                                type="datetime-local"
+                                value={formData.publishedAt}
+                                onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                লেখক নির্বাচন
+                            </label>
+                            <select
+                                value={formData.authorId}
+                                onChange={(e) => setFormData({ ...formData, authorId: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                            >
+                                <option value="">ডিফল্ট (আপনি)</option>
+                                {authors.map(author => (
+                                    <option key={author.id} value={author.id}>{author.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Category & Tags */}
