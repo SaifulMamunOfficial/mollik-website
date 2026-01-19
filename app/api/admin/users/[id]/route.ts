@@ -1,13 +1,12 @@
 
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 
 // Helper to check admin permissions
 async function checkAdmin() {
-    const session = await getServerSession(authOptions);
-    if (!session || !['ADMIN', 'SUPER_ADMIN'].includes(session.user.role)) {
+    const session = await auth();
+    if (!session || !['ADMIN', 'SUPER_ADMIN'].includes(session.user?.role)) {
         return null;
     }
     return session;

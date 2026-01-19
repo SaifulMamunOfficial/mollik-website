@@ -1,14 +1,13 @@
 
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/auth';
 import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session || !['ADMIN', 'SUPER_ADMIN'].includes(session.user.role)) {
+        const session = await auth();
+        if (!session || !['ADMIN', 'SUPER_ADMIN'].includes(session.user?.role)) {
             return new NextResponse('Unauthorized', { status: 401 });
         }
 

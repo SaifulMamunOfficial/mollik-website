@@ -157,7 +157,6 @@ export default function UserForm({ initialData }: UserFormProps) {
                                     <option value="EDITOR">এডিটর (Editor)</option>
                                     <option value="MANAGER">ম্যানেজার (Manager)</option>
                                     <option value="ADMIN">অ্যাডমিন (Admin)</option>
-                                    <option value="SUPER_ADMIN">সুপার অ্যাডমিন</option>
                                 </select>
                                 <Shield className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
                             </div>
