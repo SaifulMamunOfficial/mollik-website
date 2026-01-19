@@ -28,7 +28,7 @@ interface Video {
     thumbnail?: string | null;
     views: number;
     duration?: string | null;
-    publishedAt: Date;
+
     createdAt: Date;
 }
 
