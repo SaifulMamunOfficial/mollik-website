@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Hind_Siliguri, Noto_Serif_Bengali, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 // Bengali reading font
 const hindSiliguri = Hind_Siliguri({
@@ -117,11 +118,19 @@ export default function RootLayout({
                     প্রধান বিষয়বস্তুতে যান
                 </a>
 
-                <AuthSessionProvider>
-                    {children}
-                </AuthSessionProvider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <AuthSessionProvider>
+                        {children}
+                    </AuthSessionProvider>
+                </ThemeProvider>
             </body>
         </html>
     );
 }
+
 

@@ -18,5 +18,14 @@ export default async function SubmissionOptionsPage() {
         ],
     });
 
-    return <SubmissionOptionsClient initialOptions={options} />;
+    const formattedOptions = options.map((opt) => ({
+        id: opt.id,
+        type: opt.type,
+        name: opt.name,
+        icon: opt.icon,
+        order: opt.order,
+        isActive: opt.isActive,
+    }));
+
+    return <SubmissionOptionsClient initialOptions={formattedOptions} />;
 }

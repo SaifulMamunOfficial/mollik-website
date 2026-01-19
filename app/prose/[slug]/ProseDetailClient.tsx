@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Calendar, Eye, Share2, Heart, ArrowLeft, BookOpen, Printer, Copy, Check, Clock } from "lucide-react";
+import { CommentSection } from "@/components/comments/CommentSection";
 
 interface Essay {
     id: string;
@@ -230,6 +231,11 @@ export default function ProseDetailClient({ essay, relatedEssays, book }: Props)
                             </div>
                         </div>
                     )}
+
+                    {/* Comment Section */}
+                    <div className="max-w-4xl mx-auto mt-12">
+                        <CommentSection writingId={essay.id} title="পাঠকদের মন্তব্য" />
+                    </div>
                 </div>
             </main>
             <Footer />

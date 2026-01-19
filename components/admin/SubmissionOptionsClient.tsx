@@ -21,7 +21,9 @@ import {
     X,
     MoreVertical,
     Check,
-    AlertCircle
+    AlertCircle,
+    LayoutGrid,
+    List
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 
@@ -53,6 +55,7 @@ export default function SubmissionOptionsClient({ initialOptions }: SubmissionOp
     const [options, setOptions] = useState<SubmissionOption[]>(initialOptions);
     const [activeTab, setActiveTab] = useState("DESIGNATION");
     const [searchQuery, setSearchQuery] = useState("");
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
     // Modal & Form State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -229,7 +232,26 @@ export default function SubmissionOptionsClient({ initialOptions }: SubmissionOp
                 </div>
 
                 <div className="flex items-center gap-3 w-full md:w-auto">
+                    {/* View Toggle */}
+                    <div className="flex bg-gray-100 p-1 rounded-xl">
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                            title="গ্রিড ভিউ"
+                        >
+                            <LayoutGrid size={20} />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                            title="তালিকা ভিউ"
+                        >
+                            <List size={20} />
+                        </button>
+                    </div>
+
                     <div className="h-8 w-[1px] bg-gray-200 hidden md:block mx-1" />
+
                     <button
                         onClick={openAddModal}
                         className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white font-medium rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/20 w-full md:w-auto justify-center"
@@ -241,17 +263,18 @@ export default function SubmissionOptionsClient({ initialOptions }: SubmissionOp
             </div>
 
             {/* Content List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredOptions.length === 0 ? (
-                    <div className="col-span-full py-16 text-center text-gray-500 bg-white rounded-2xl border border-gray-200 border-dashed">
-                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Search className="w-8 h-8 text-gray-300" />
-                        </div>
-                        <p className="text-lg font-medium text-gray-900">কোনো অপশন পাওয়া যায়নি</p>
-                        <p className="text-sm mt-1">নতুন অপশন যোগ করতে উপরের বাটনে ক্লিক করুন</p>
+            {filteredOptions.length === 0 ? (
+                <div className="py-16 text-center text-gray-500 bg-white rounded-2xl border border-gray-200 border-dashed">
+                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Search className="w-8 h-8 text-gray-300" />
                     </div>
-                ) : (
-                    filteredOptions.map((option) => (
+                    <p className="text-lg font-medium text-gray-900">কোনো অপশন পাওয়া যায়নি</p>
+                    <p className="text-sm mt-1">নতুন অপশন যোগ করতে উপরের বাটনে ক্লিক করুন</p>
+                </div>
+            ) : viewMode === 'grid' ? (
+                /* GRID VIEW */
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {filteredOptions.map((option) => (
                         <div key={option.id} className="group bg-white p-4 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between h-full">
                             <div>
                                 <div className="flex items-start justify-between mb-4">
@@ -264,7 +287,7 @@ export default function SubmissionOptionsClient({ initialOptions }: SubmissionOp
                                             <p className="text-xs text-gray-500 mt-0.5 font-mono">{option.icon || 'No Icon'}</p>
                                         </div>
                                     </div>
-                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div>
                                         <button
                                             onClick={() => openEditModal(option)}
                                             className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-blue-600 transition-colors"
@@ -297,9 +320,70 @@ export default function SubmissionOptionsClient({ initialOptions }: SubmissionOp
                                 </button>
                             </div>
                         </div>
-                    ))
-                )}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                /* LIST VIEW */
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 font-semibold tracking-wider">
+                                <th className="px-6 py-4">নাম</th>
+                                <th className="px-6 py-4">স্ট্যাটাস</th>
+                                <th className="px-6 py-4 text-right">অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {filteredOptions.map((option) => (
+                                <tr key={option.id} className="hover:bg-gray-50/50 transition-colors group">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${option.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}>
+                                                {renderIcon(option.icon) || (activeTypeInfo ? <activeTypeInfo.icon size={18} /> : <User size={18} />)}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-medium text-gray-900">{option.name}</h3>
+                                                <p className="text-xs text-gray-500 font-mono mt-0.5">{option.icon || 'Default Icon'}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <button
+                                            onClick={() => handleToggleStatus(option.id, option.isActive)}
+                                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors border
+                                                ${option.isActive
+                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100'
+                                                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}
+                                            `}
+                                        >
+                                            {option.isActive ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                                            {option.isActive ? 'সক্রিয়' : 'নিষ্ক্রিয়'}
+                                        </button>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => openEditModal(option)}
+                                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                title="সম্পাদনা"
+                                            >
+                                                <Pencil size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => setDeleteId(option.id)}
+                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="মুছে ফেলুন"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Add/Edit Modal */}
             {isModalOpen && (
