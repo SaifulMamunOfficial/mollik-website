@@ -1,4 +1,5 @@
 import { getVideosFromDB } from "@/lib/data";
+import { getYouTubeVideoStats } from "@/lib/youtube";
 import VideosClient from "./VideosClient";
 
 export const dynamic = 'force-dynamic';
@@ -10,5 +11,21 @@ export const metadata = {
 
 export default async function VideosPage() {
     const videos = await getVideosFromDB();
-    return <VideosClient videos={videos} />;
+
+    // Fetch live YouTube stats
+    const youtubeIds = videos.map(v => v.youtubeId).filter(Boolean);
+    const stats = await getYouTubeVideoStats(youtubeIds);
+
+    // Merge stats with videos
+    const enrichedVideos = videos.map(video => {
+        const stat = stats[video.youtubeId];
+        return {
+            ...video,
+            // Use live YouTube views/duration if available, otherwise fallback to DB
+            views: stat?.viewCount || video.views,
+            duration: stat?.duration || video.duration
+        };
+    });
+
+    return <VideosClient videos={enrichedVideos} />;
 }

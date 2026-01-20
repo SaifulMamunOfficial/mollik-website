@@ -51,6 +51,7 @@ export default async function VideoDetailPage({ params }: Props) {
     });
 
     // Normalize data
+    // Normalize data helper
     const normalize = (v: any) => ({
         id: v.id,
         title: v.title,
@@ -65,8 +66,37 @@ export default async function VideoDetailPage({ params }: Props) {
         featured: v.featured
     });
 
-    const normalizedVideo = normalize(video);
-    const normalizedRelated = relatedVideosData.map(normalize);
+    let normalizedVideo = normalize(video);
+    let normalizedRelated = relatedVideosData.map(normalize);
+
+    // Fetch live YouTube stats
+    try {
+        const { getYouTubeVideoStats } = await import("@/lib/youtube");
+        const allYoutubeIds = [video.youtubeId, ...relatedVideosData.map(v => v.youtubeId)].filter(Boolean);
+        const stats = await getYouTubeVideoStats(allYoutubeIds);
+
+        // Update views & duration for main video
+        const mainVideoStat = stats[video.youtubeId];
+        if (mainVideoStat) {
+            normalizedVideo = {
+                ...normalizedVideo,
+                views: mainVideoStat.viewCount || normalizedVideo.views,
+                duration: mainVideoStat.duration || normalizedVideo.duration
+            };
+        }
+
+        // Update views & duration for related videos
+        normalizedRelated = normalizedRelated.map(v => {
+            const stat = stats[v.youtubeId];
+            return {
+                ...v,
+                views: stat?.viewCount || v.views,
+                duration: stat?.duration || v.duration
+            };
+        });
+    } catch (error) {
+        console.error("Failed to fetch YouTube stats:", error);
+    }
 
     return <VideoDetailClient video={normalizedVideo} relatedVideos={normalizedRelated} />;
 }

@@ -18,7 +18,8 @@ import {
     Clock,
     Youtube,
     Check,
-    X
+    X,
+    RefreshCw
 } from 'lucide-react';
 
 interface Video {
@@ -122,6 +123,44 @@ export default function VideoListClient({ videos }: VideoListClientProps) {
         }
     };
 
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [syncMessage, setSyncMessage] = useState<string | null>(null);
+    const [syncType, setSyncType] = useState<'success' | 'error'>('success');
+
+    // Sync Handler
+    const handleSync = async () => {
+        setIsSyncing(true);
+        setSyncMessage(null);
+        try {
+            const res = await fetch('/api/admin/videos/sync', { method: 'POST' });
+            const data = await res.json();
+
+            if (res.ok) {
+                setSyncType('success');
+                setSyncMessage(data.message);
+                router.refresh();
+                // Delay reload slightly to let user see the toast
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                setSyncType('error');
+                setSyncMessage(data.error || 'Sync failed');
+            }
+        } catch (error) {
+            console.error('Sync error:', error);
+            setSyncType('error');
+            setSyncMessage('সিঙ্ক করতে সমস্যা হয়েছে');
+        } finally {
+            setIsSyncing(false);
+
+            // Auto hide error toast after 5s (success hides on reload)
+            setTimeout(() => {
+                if (syncType === 'error') setSyncMessage(null);
+            }, 5000);
+        }
+    };
+
     return (
         <div className="space-y-8">
             {/* Header Section */}
@@ -131,13 +170,24 @@ export default function VideoListClient({ videos }: VideoListClientProps) {
                     <p className="text-gray-500 mt-1">মোট {filteredVideos.length} টি ভিডিও</p>
                 </div>
 
-                <Link
-                    href="/admin/videos/new"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl font-medium transition-all shadow-md shadow-red-600/20 hover:shadow-red-600/30"
-                >
-                    <Plus className="w-5 h-5" />
-                    <span>নতুন ভিডিও</span>
-                </Link>
+                <div className="flex gap-3">
+                    <button
+                        onClick={handleSync}
+                        disabled={isSyncing}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition-all shadow-sm"
+                    >
+                        <RefreshCw className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} />
+                        <span>{isSyncing ? 'সিঙ্ক হচ্ছে...' : 'YouTube Sync'}</span>
+                    </button>
+
+                    <Link
+                        href="/admin/videos/new"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl font-medium transition-all shadow-md shadow-red-600/20 hover:shadow-red-600/30"
+                    >
+                        <Plus className="w-5 h-5" />
+                        <span>নতুন ভিডিও</span>
+                    </Link>
+                </div>
             </div>
 
             {/* Controls Toolbar */}
@@ -460,6 +510,31 @@ export default function VideoListClient({ videos }: VideoListClientProps) {
                     </div>
                 )
             }
+            {/* Toast Notification */}
+            {syncMessage && (
+                <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 duration-300">
+                    <div className={`flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-lg border ${syncType === 'success'
+                        ? 'bg-emerald-50 border-emerald-100 text-emerald-800'
+                        : 'bg-red-50 border-red-100 text-red-800'
+                        }`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${syncType === 'success' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'
+                            }`}>
+                            {syncType === 'success' ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
+                        </div>
+                        <div>
+                            <h4 className="font-semibold text-sm">{syncType === 'success' ? 'সফল হয়েছে' : 'সমস্যা হয়েছে'}</h4>
+                            <p className="text-sm opacity-90">{syncMessage}</p>
+                        </div>
+                        <button
+                            onClick={() => setSyncMessage(null)}
+                            className={`ml-2 p-1 rounded-full hover:bg-black/5 transition-colors ${syncType === 'success' ? 'text-emerald-500' : 'text-red-500'
+                                }`}
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }
