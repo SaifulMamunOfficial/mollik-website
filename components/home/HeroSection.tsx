@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { BookOpen, Music, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import type { SiteSettings } from "@prisma/client";
 
 interface HeroSectionProps {
@@ -81,23 +80,7 @@ export function HeroSection({ settings }: HeroSectionProps) {
                         {bornDate} — {deathDate}
                     </p>
 
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4 animate-fade-in stagger-4">
-                        <Link
-                            href="/poems"
-                            className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-gray-900 font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl shadow-gold-500/30 hover:shadow-gold-400/40"
-                        >
-                            <BookOpen className="w-5 h-5 transition-transform group-hover:-rotate-6" />
-                            কবিতা অন্বেষণ করুন
-                        </Link>
-                        <Link
-                            href="/songs"
-                            className="group flex items-center gap-3 px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-full border border-white/10 hover:border-gold-400/30 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
-                        >
-                            <Music className="w-5 h-5 transition-transform group-hover:scale-110" />
-                            গান শুনুন
-                        </Link>
-                    </div>
+
                 </div>
             </div>
 
