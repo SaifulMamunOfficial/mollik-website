@@ -23,18 +23,27 @@ export async function POST(req: Request) {
             )
         }
 
-        // Generate slug
-        const slug = title
+        // Generate base slug
+        let slug = title
             .toLowerCase()
             .replace(/[^\u0980-\u09FFa-z0-9\s-]/g, '')
             .replace(/\s+/g, '-')
             .replace(/-+/g, '-')
-            .trim() + '-' + Date.now()
+            .trim()
+
+        // Ensure unique slug
+        let uniqueSlug = slug
+        let counter = 1
+
+        while (await prisma.blogPost.findFirst({ where: { slug: uniqueSlug } })) {
+            uniqueSlug = `${slug}-${counter}`
+            counter++
+        }
 
         const blogPost = await prisma.blogPost.create({
             data: {
                 title,
-                slug,
+                slug: uniqueSlug,
                 content,
                 excerpt: excerpt || content.substring(0, 200),
                 coverImage,

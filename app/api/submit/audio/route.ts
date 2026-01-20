@@ -23,18 +23,27 @@ export async function POST(req: Request) {
             )
         }
 
-        // Generate slug
-        const slug = title
+        // Generate base slug
+        let slug = title
             .toLowerCase()
             .replace(/[^\u0980-\u09FFa-z0-9\s-]/g, '')
             .replace(/\s+/g, '-')
             .replace(/-+/g, '-')
-            .trim() + '-' + Date.now()
+            .trim()
+
+        // Ensure unique slug
+        let uniqueSlug = slug
+        let counter = 1
+
+        while (await prisma.audio.findFirst({ where: { slug: uniqueSlug } })) {
+            uniqueSlug = `${slug}-${counter}`
+            counter++
+        }
 
         const audio = await prisma.audio.create({
             data: {
                 title,
-                slug,
+                slug: uniqueSlug,
                 audioUrl,
                 artist: artist || null,
                 album: album || null,

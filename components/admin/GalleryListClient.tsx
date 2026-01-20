@@ -16,7 +16,9 @@ import {
     Trash2,
     Eye,
     Maximize2,
-    X
+    X,
+    Check,
+    Clock
 } from 'lucide-react';
 
 interface GalleryImage {
@@ -38,9 +40,12 @@ export default function GalleryListClient({ images }: GalleryListClientProps) {
     const router = useRouter();
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'PENDING' | 'PUBLISHED' | 'ARCHIVED'>('all');
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+    const [isApproving, setIsApproving] = useState<string | null>(null);
+    const [isRejecting, setIsRejecting] = useState<string | null>(null);
 
     // Filter Logic
     const filteredImages = useMemo(() => {
@@ -50,9 +55,11 @@ export default function GalleryListClient({ images }: GalleryListClientProps) {
                 (image.location?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
                 (image.year?.toLowerCase() || '').includes(searchQuery.toLowerCase());
 
-            return matchesSearch;
+            const matchesStatus = statusFilter === 'all' || image.status === statusFilter;
+
+            return matchesSearch && matchesStatus;
         });
-    }, [images, searchQuery]);
+    }, [images, searchQuery, statusFilter]);
 
     // Delete Handler
     const handleDelete = async () => {
@@ -77,6 +84,52 @@ export default function GalleryListClient({ images }: GalleryListClientProps) {
             setIsDeleting(false);
         }
     };
+
+    // Approve Handler
+    const handleApprove = async (id: string) => {
+        setIsApproving(id);
+        try {
+            const response = await fetch(`/api/admin/gallery/${id}/approve`, {
+                method: 'POST',
+            });
+
+            if (response.ok) {
+                router.refresh();
+            } else {
+                alert('অনুমোদন করতে সমস্যা হয়েছে');
+            }
+        } catch (error) {
+            console.error('Approve error:', error);
+            alert('অনুমোদন করতে সমস্যা হয়েছে');
+        } finally {
+            setIsApproving(null);
+        }
+    };
+
+    // Reject Handler
+    const handleReject = async (id: string) => {
+        setIsRejecting(id);
+        try {
+            const response = await fetch(`/api/admin/gallery/${id}/reject`, {
+                method: 'POST',
+            });
+
+            if (response.ok) {
+                router.refresh();
+            } else {
+                alert('বাতিল করতে সমস্যা হয়েছে');
+            }
+        } catch (error) {
+            console.error('Reject error:', error);
+            alert('বাতিল করতে সমস্যা হয়েছে');
+        } finally {
+            setIsRejecting(null);
+        }
+    };
+
+    // Count by status
+    const pendingCount = images.filter(img => img.status === 'PENDING').length;
+    const publishedCount = images.filter(img => img.status === 'PUBLISHED').length;
 
     return (
         <div className="space-y-8">
@@ -112,6 +165,32 @@ export default function GalleryListClient({ images }: GalleryListClientProps) {
 
                 {/* Actions Group */}
                 <div className="flex items-center gap-3 w-full md:w-auto">
+                    {/* Status Filter */}
+                    <div className="flex items-center bg-gray-100 p-1 rounded-xl flex-shrink-0">
+                        <button
+                            onClick={() => setStatusFilter('all')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${statusFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            সব
+                        </button>
+                        <button
+                            onClick={() => setStatusFilter('PENDING')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1 ${statusFilter === 'PENDING' ? 'bg-yellow-100 text-yellow-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            <Clock className="w-3.5 h-3.5" />
+                            অপেক্ষমান
+                            {pendingCount > 0 && (
+                                <span className="ml-1 px-1.5 py-0.5 bg-yellow-500 text-white text-xs rounded-full">{pendingCount}</span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setStatusFilter('PUBLISHED')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${statusFilter === 'PUBLISHED' ? 'bg-emerald-100 text-emerald-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            প্রকাশিত
+                        </button>
+                    </div>
+
                     <div className="h-8 w-[1px] bg-gray-200 hidden md:block mx-1" />
 
                     <div className="flex items-center bg-gray-100 p-1 rounded-xl flex-shrink-0">
@@ -209,12 +288,40 @@ export default function GalleryListClient({ images }: GalleryListClientProps) {
 
                                         {/* Status Indicators (Top Right) */}
                                         <div className="absolute top-3 right-3 flex gap-2">
+                                            {image.status === 'PENDING' && (
+                                                <span className="bg-yellow-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1">
+                                                    <Clock className="w-3 h-3" />
+                                                    অপেক্ষমান
+                                                </span>
+                                            )}
                                             {image.featured && (
                                                 <span className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
                                                     FEATURED
                                                 </span>
                                             )}
                                         </div>
+
+                                        {/* Approve/Reject Buttons for PENDING (Top Left) */}
+                                        {image.status === 'PENDING' && (
+                                            <div className="absolute top-3 left-3 flex gap-1">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleApprove(image.id); }}
+                                                    disabled={isApproving === image.id}
+                                                    className="p-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg shadow-md transition-colors disabled:opacity-50"
+                                                    title="অনুমোদন করুন"
+                                                >
+                                                    {isApproving === image.id ? <span className="animate-spin">⏳</span> : <Check className="w-4 h-4" />}
+                                                </button>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleReject(image.id); }}
+                                                    disabled={isRejecting === image.id}
+                                                    className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-md transition-colors disabled:opacity-50"
+                                                    title="বাতিল করুন"
+                                                >
+                                                    {isRejecting === image.id ? <span className="animate-spin">⏳</span> : <X className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -267,14 +374,16 @@ export default function GalleryListClient({ images }: GalleryListClientProps) {
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col gap-1">
                                                     <span className={`inline-flex w-fit items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${image.status === 'PUBLISHED' ? 'bg-emerald-50 text-emerald-700' :
+                                                        image.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                                                             image.status === 'DRAFT' ? 'bg-gray-100 text-gray-700' :
                                                                 'bg-red-50 text-red-700'
                                                         }`}>
                                                         <span className={`w-1.5 h-1.5 rounded-full ${image.status === 'PUBLISHED' ? 'bg-emerald-500' :
+                                                            image.status === 'PENDING' ? 'bg-yellow-500' :
                                                                 image.status === 'DRAFT' ? 'bg-gray-500' :
                                                                     'bg-red-500'
                                                             }`} />
-                                                        {image.status}
+                                                        {image.status === 'PENDING' ? 'অপেক্ষমান' : image.status === 'PUBLISHED' ? 'প্রকাশিত' : image.status}
                                                     </span>
                                                     {image.featured && (
                                                         <span className="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full w-fit">Featured</span>
@@ -283,6 +392,28 @@ export default function GalleryListClient({ images }: GalleryListClientProps) {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
+                                                    {/* Approve/Reject for PENDING */}
+                                                    {image.status === 'PENDING' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleApprove(image.id)}
+                                                                disabled={isApproving === image.id}
+                                                                className="p-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors disabled:opacity-50"
+                                                                title="অনুমোদন করুন"
+                                                            >
+                                                                {isApproving === image.id ? <span className="animate-spin">⏳</span> : <Check className="w-4 h-4" />}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleReject(image.id)}
+                                                                disabled={isRejecting === image.id}
+                                                                className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50"
+                                                                title="বাতিল করুন"
+                                                            >
+                                                                {isRejecting === image.id ? <span className="animate-spin">⏳</span> : <X className="w-4 h-4" />}
+                                                            </button>
+                                                            <div className="w-px h-6 bg-gray-200" />
+                                                        </>
+                                                    )}
                                                     <button
                                                         onClick={() => setSelectedImage(image)}
                                                         className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"

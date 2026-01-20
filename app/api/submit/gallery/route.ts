@@ -14,9 +14,12 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json()
-        const { url, title, description, year } = body
+        const { coverImage, url, title, description, year, location } = body
 
-        if (!url) {
+        // Support both 'coverImage' (from frontend) and 'url' field names
+        const imageUrl = coverImage || url
+
+        if (!imageUrl) {
             return NextResponse.json(
                 { message: 'ছবির URL প্রয়োজন' },
                 { status: 400 }
@@ -25,10 +28,12 @@ export async function POST(req: Request) {
 
         const image = await prisma.galleryImage.create({
             data: {
-                url,
+                url: imageUrl,
                 title: title || null,
                 description: description || null,
                 year: year || null,
+                location: location || null,
+
                 status: 'PENDING',
                 submittedBy: session.user.id,
             },

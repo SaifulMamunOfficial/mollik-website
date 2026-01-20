@@ -193,54 +193,6 @@ export default function BlogClient({ posts }: Props) {
                 />
             </div>
 
-            {/* Pending Posts Alert */}
-            {pendingPosts.length > 0 && (
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
-                            <Clock className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <h2 className="font-bold text-amber-800">অনুমোদনের অপেক্ষায়</h2>
-                            <p className="text-sm text-amber-600">{pendingPosts.length}টি পোস্ট রিভিউ করুন</p>
-                        </div>
-                    </div>
-
-                    <div className="grid gap-3">
-                        {pendingPosts.slice(0, 3).map((post) => (
-                            <div key={post.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-amber-100 hover:shadow-md transition-shadow">
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-gray-900 truncate">{post.title}</h3>
-                                    <p className="text-sm text-gray-500">
-                                        {post.author.name || post.author.email} • {new Date(post.createdAt).toLocaleDateString('bn-BD')}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2 ml-4">
-                                    <Link
-                                        href={`/admin/blog/${post.id}`}
-                                        className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                                    >
-                                        <Eye size={18} />
-                                    </Link>
-                                    <button
-                                        onClick={() => handleApprove(post.id)}
-                                        className="p-2.5 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors"
-                                    >
-                                        <Check size={18} />
-                                    </button>
-                                    <button
-                                        onClick={() => handleReject(post.id)}
-                                        className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-                                    >
-                                        <X size={18} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
             {/* Search & Filter Bar */}
             <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 relative">
@@ -259,8 +211,8 @@ export default function BlogClient({ posts }: Props) {
                             key={status}
                             onClick={() => setStatusFilter(status)}
                             className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${statusFilter === status
-                                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
-                                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                                 }`}
                         >
                             {status === 'all' ? 'সব' :
@@ -359,6 +311,24 @@ export default function BlogClient({ posts }: Props) {
 
                                     {/* Actions */}
                                     <div className="flex items-center gap-1">
+                                        {post.status === 'PENDING' && (
+                                            <>
+                                                <button
+                                                    onClick={() => handleApprove(post.id)}
+                                                    className="p-2.5 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors"
+                                                    title="অনুমোদন"
+                                                >
+                                                    <Check size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleReject(post.id)}
+                                                    className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                                                    title="বাতিল"
+                                                >
+                                                    <X size={18} />
+                                                </button>
+                                            </>
+                                        )}
                                         <Link
                                             href={`/blog/${post.slug}`}
                                             target="_blank"

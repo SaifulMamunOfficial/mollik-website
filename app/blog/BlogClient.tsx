@@ -176,10 +176,6 @@ export default function BlogClient() {
                                                     <h3 className="font-display text-xl font-bold text-white mb-2 leading-tight group-hover:text-emerald-400 transition-colors line-clamp-2">
                                                         {post.title}
                                                     </h3>
-                                                    <span className="text-gray-300 text-xs flex items-center gap-1">
-                                                        <Clock className="w-3 h-3" />
-                                                        {post.readTime}
-                                                    </span>
                                                 </div>
                                             </Link>
                                         ))}
@@ -235,11 +231,6 @@ export default function BlogClient() {
                                                 <span className="flex items-center gap-1">
                                                     <Calendar className="w-3.5 h-3.5" />
                                                     {formatDate(post.publishedAt)}
-                                                </span>
-                                                <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
-                                                <span className="flex items-center gap-1">
-                                                    <Clock className="w-3.5 h-3.5" />
-                                                    {post.readTime}
                                                 </span>
                                             </div>
 

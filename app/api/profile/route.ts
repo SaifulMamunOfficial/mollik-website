@@ -84,6 +84,20 @@ export async function GET() {
             },
         });
 
+        // Get user's gallery submissions
+        const galleryImages = await prisma.galleryImage.findMany({
+            where: { submittedBy: session.user.id },
+            orderBy: { createdAt: "desc" },
+            take: 10,
+            select: {
+                id: true,
+                title: true,
+                url: true,
+                status: true,
+                createdAt: true,
+            },
+        });
+
         // Get user's comments (recent activity)
         const recentComments = await prisma.comment.findMany({
             where: { userId: session.user.id },
@@ -175,6 +189,17 @@ export async function GET() {
                     date: formatBengaliDate(tribute.createdAt),
                     createdAt: tribute.createdAt.getTime(),
                     views: 0,
+                })),
+                ...galleryImages.map((image) => ({
+                    id: image.id,
+                    slug: image.id,
+                    title: image.title || "ছবি",
+                    type: "ছবিঘর",
+                    status: image.status.toLowerCase(),
+                    date: formatBengaliDate(image.createdAt),
+                    createdAt: image.createdAt.getTime(),
+                    views: 0,
+                    thumbnail: image.url,
                 })),
             ].sort((a, b) => b.createdAt - a.createdAt),
             favorites: likedposts.map((like: any) => ({

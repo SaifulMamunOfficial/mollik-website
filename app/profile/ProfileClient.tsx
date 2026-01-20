@@ -29,6 +29,9 @@ import {
     MoreHorizontal,
     Loader2,
     Shield,
+    Camera,
+    LayoutGrid,
+    List,
 } from "lucide-react";
 
 type TabType = "submissions" | "favorites" | "activity";
@@ -80,12 +83,14 @@ const typeIcons: Record<string, { icon: React.ComponentType<{ className?: string
     "ব্লগ": { icon: MessageSquare, gradient: "from-orange-500 to-red-600" },
     "গান": { icon: Sparkles, gradient: "from-pink-500 to-rose-600" },
     "শোকবার্তা": { icon: Heart, gradient: "from-rose-500 to-pink-600" },
+    "ছবিঘর": { icon: Camera, gradient: "from-emerald-500 to-teal-600" },
 };
 
 export default function ProfileClient() {
     const { data: session, status: sessionStatus } = useSession();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<TabType>("submissions");
+    const [viewMode, setViewMode] = useState<"grid" | "list">("list");
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -135,6 +140,22 @@ export default function ProfileClient() {
         { id: "favorites" as TabType, label: "প্রিয় তালিকা", icon: Heart, count: favorites.length },
         { id: "activity" as TabType, label: "কার্যকলাপ", icon: Clock, count: activities.length },
     ];
+
+    // Helper function to get correct URL based on item type
+    const getItemUrl = (item: { type: string; slug: string; status: string }) => {
+        // For pending/rejected items, don't navigate
+        if (item.status === 'pending' || item.status === 'archived') {
+            return '#';
+        }
+        switch (item.type) {
+            case 'ছবিঘর':
+                return '/gallery';
+            case 'শোকবার্তা':
+                return '/tributes';
+            default:
+                return `/blog/${item.slug}`;
+        }
+    };
 
     // Loading state
     if (sessionStatus === "loading" || isLoading) {
@@ -276,28 +297,50 @@ export default function ProfileClient() {
                 {/* Content Section */}
                 <section className="py-8 md:py-12">
                     <div className="container-custom">
-                        {/* Tabs */}
-                        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-                            {tabs.map((tab) => {
-                                const Icon = tab.icon;
-                                const isActive = activeTab === tab.id;
-                                return (
+                        {/* Tabs with View Toggle */}
+                        <div className="flex items-center justify-between gap-4 mb-8">
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                {tabs.map((tab) => {
+                                    const Icon = tab.icon;
+                                    const isActive = activeTab === tab.id;
+                                    return (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setActiveTab(tab.id)}
+                                            className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${isActive
+                                                ? "bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/30"
+                                                : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-700"
+                                                }`}
+                                        >
+                                            <Icon className="w-5 h-5" />
+                                            {tab.label}
+                                            <span className={`text-xs px-2 py-0.5 rounded-full ${isActive ? "bg-white/20" : "bg-gray-100 dark:bg-gray-700"}`}>
+                                                {tab.count}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* View Toggle - Show for submissions and favorites tabs */}
+                            {((activeTab === "submissions" && submissions.length > 0) || (activeTab === "favorites" && favorites.length > 0)) && (
+                                <div className="flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-xl flex-shrink-0">
                                     <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${isActive
-                                            ? "bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/30"
-                                            : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-700"
-                                            }`}
+                                        onClick={() => setViewMode('grid')}
+                                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                        title="গ্রিড ভিউ"
                                     >
-                                        <Icon className="w-5 h-5" />
-                                        {tab.label}
-                                        <span className={`text-xs px-2 py-0.5 rounded-full ${isActive ? "bg-white/20" : "bg-gray-100 dark:bg-gray-700"}`}>
-                                            {tab.count}
-                                        </span>
+                                        <LayoutGrid className="w-5 h-5" />
                                     </button>
-                                );
-                            })}
+                                    <button
+                                        onClick={() => setViewMode('list')}
+                                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                        title="লিস্ট ভিউ"
+                                    >
+                                        <List className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         {/* Tab Content */}
@@ -306,62 +349,119 @@ export default function ProfileClient() {
                             {activeTab === "submissions" && (
                                 <div className="space-y-4">
                                     {submissions.length > 0 ? (
-                                        submissions.map((item, index) => {
-                                            const status = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.draft;
-                                            const StatusIcon = status.icon;
-                                            const typeConfig = typeIcons[item.type] || typeIcons["ব্লগ"];
-                                            const TypeIcon = typeConfig.icon;
+                                        <>{/* Grid View */}
+                                            {viewMode === 'grid' ? (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    {submissions.map((item, index) => {
+                                                        const status = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.draft;
+                                                        const StatusIcon = status.icon;
+                                                        const typeConfig = typeIcons[item.type] || typeIcons["ব্লগ"];
+                                                        const TypeIcon = typeConfig.icon;
 
-                                            return (
-                                                <Link
-                                                    href={`/blog/${item.slug}`}
-                                                    key={item.id}
-                                                    className="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700"
-                                                    style={{ animationDelay: `${index * 100}ms` }}
-                                                >
-                                                    <div className="p-5 md:p-6">
-                                                        <div className="flex items-start gap-4">
-                                                            {/* Icon */}
-                                                            <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${typeConfig.gradient} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
-                                                                <TypeIcon className="w-7 h-7 text-white" />
-                                                            </div>
+                                                        return (
+                                                            <Link
+                                                                href={getItemUrl(item)}
+                                                                key={item.id}
+                                                                className="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700"
+                                                                style={{ animationDelay: `${index * 50}ms` }}
+                                                            >
+                                                                <div className="p-5">
+                                                                    {/* Type Icon */}
+                                                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${typeConfig.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+                                                                        <TypeIcon className="w-6 h-6 text-white" />
+                                                                    </div>
 
-                                                            {/* Content */}
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                                                    <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full font-medium">
-                                                                        {item.type}
-                                                                    </span>
-                                                                    <span className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border ${status.color}`}>
-                                                                        <StatusIcon className="w-3.5 h-3.5" />
-                                                                        {status.label}
-                                                                    </span>
+                                                                    {/* Badges */}
+                                                                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                                        <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full font-medium">
+                                                                            {item.type}
+                                                                        </span>
+                                                                        <span className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium border ${status.color}`}>
+                                                                            <StatusIcon className="w-3 h-3" />
+                                                                            {status.label}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {/* Title */}
+                                                                    <h3 className="text-base font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-gold-400 transition-colors line-clamp-2 mb-2">
+                                                                        {item.title}
+                                                                    </h3>
+
+                                                                    {/* Date & Views */}
+                                                                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                                                        <span>{item.date}</span>
+                                                                        <span className="flex items-center gap-1">
+                                                                            <Eye className="w-3.5 h-3.5" />
+                                                                            {item.views}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
-                                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-gold-400 transition-colors">
-                                                                    {item.title}
-                                                                </h3>
-                                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                                                    {item.date}
-                                                                </p>
+                                                            </Link>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                /* List View */
+                                                <div className="space-y-4">
+                                                    {submissions.map((item, index) => {
+                                                        const status = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.draft;
+                                                        const StatusIcon = status.icon;
+                                                        const typeConfig = typeIcons[item.type] || typeIcons["ব্লগ"];
+                                                        const TypeIcon = typeConfig.icon;
 
-                                                                {/* Stats Row */}
-                                                                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                                                                    <span className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
-                                                                        <Eye className="w-4 h-4" />
-                                                                        {item.views} বার দেখা হয়েছে
-                                                                    </span>
+                                                        return (
+                                                            <Link
+                                                                href={getItemUrl(item)}
+                                                                key={item.id}
+                                                                className="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700"
+                                                                style={{ animationDelay: `${index * 100}ms` }}
+                                                            >
+                                                                <div className="p-5 md:p-6">
+                                                                    <div className="flex items-start gap-4">
+                                                                        {/* Icon */}
+                                                                        <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${typeConfig.gradient} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
+                                                                            <TypeIcon className="w-7 h-7 text-white" />
+                                                                        </div>
+
+                                                                        {/* Content */}
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                                                <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full font-medium">
+                                                                                    {item.type}
+                                                                                </span>
+                                                                                <span className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium border ${status.color}`}>
+                                                                                    <StatusIcon className="w-3.5 h-3.5" />
+                                                                                    {status.label}
+                                                                                </span>
+                                                                            </div>
+                                                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-gold-400 transition-colors">
+                                                                                {item.title}
+                                                                            </h3>
+                                                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                                                {item.date}
+                                                                            </p>
+
+                                                                            {/* Stats Row */}
+                                                                            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                                                                <span className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                                                                                    <Eye className="w-4 h-4" />
+                                                                                    {item.views} বার দেখা হয়েছে
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Actions */}
+                                                                        <div className="flex items-center gap-2">
+                                                                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-
-                                                            {/* Actions */}
-                                                            <div className="flex items-center gap-2">
-                                                                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </Link>
-                                            );
-                                        })
+                                                            </Link>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </>
                                     ) : (
                                         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-16 text-center border border-gray-100 dark:border-gray-700">
                                             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
@@ -383,60 +483,114 @@ export default function ProfileClient() {
                             {activeTab === "favorites" && (
                                 <div className="space-y-4">
                                     {favorites.length > 0 ? (
-                                        favorites.map((item, index) => {
-                                            const status = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.published;
-                                            const typeConfig = typeIcons[item.type] || typeIcons["ব্লগ"];
-                                            const TypeIcon = typeConfig.icon;
+                                        <>
+                                            {/* Grid View */}
+                                            {viewMode === 'grid' ? (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    {favorites.map((item, index) => {
+                                                        const typeConfig = typeIcons[item.type] || typeIcons["ব্লগ"];
+                                                        const TypeIcon = typeConfig.icon;
 
-                                            return (
-                                                <Link
-                                                    href={`/blog/${item.slug}`}
-                                                    key={item.id}
-                                                    className="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700"
-                                                    style={{ animationDelay: `${index * 100}ms` }}
-                                                >
-                                                    <div className="p-5 md:p-6">
-                                                        <div className="flex items-start gap-4">
-                                                            {/* Icon */}
-                                                            <div className={`w-14 h-14 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
-                                                                <Heart className="w-7 h-7 text-white fill-current" />
-                                                            </div>
+                                                        return (
+                                                            <Link
+                                                                href={getItemUrl(item)}
+                                                                key={item.id}
+                                                                className="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700"
+                                                                style={{ animationDelay: `${index * 50}ms` }}
+                                                            >
+                                                                <div className="p-5">
+                                                                    {/* Icon */}
+                                                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                                                                        <Heart className="w-6 h-6 text-white fill-current" />
+                                                                    </div>
 
-                                                            {/* Content */}
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                                                    <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full font-medium">
-                                                                        {item.type}
-                                                                    </span>
-                                                                    <span className="text-xs px-2.5 py-1 bg-rose-50 text-rose-600 rounded-full font-medium">
-                                                                        পছন্দ করা হয়েছে
-                                                                    </span>
+                                                                    {/* Badges */}
+                                                                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                                        <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full font-medium">
+                                                                            {item.type}
+                                                                        </span>
+                                                                        <span className="text-xs px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full font-medium">
+                                                                            পছন্দ
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {/* Title */}
+                                                                    <h3 className="text-base font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-gold-400 transition-colors line-clamp-2 mb-2">
+                                                                        {item.title}
+                                                                    </h3>
+
+                                                                    {/* Date & Views */}
+                                                                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                                                        <span>{item.date}</span>
+                                                                        <span className="flex items-center gap-1">
+                                                                            <Eye className="w-3.5 h-3.5" />
+                                                                            {item.views}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
-                                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-gold-400 transition-colors">
-                                                                    {item.title}
-                                                                </h3>
-                                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                                                    প্রকাশিত: {item.date}
-                                                                </p>
+                                                            </Link>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                /* List View */
+                                                <div className="space-y-4">
+                                                    {favorites.map((item, index) => {
+                                                        const typeConfig = typeIcons[item.type] || typeIcons["ব্লগ"];
+                                                        const TypeIcon = typeConfig.icon;
 
-                                                                {/* Stats Row */}
-                                                                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                                                                    <span className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
-                                                                        <Eye className="w-4 h-4" />
-                                                                        {item.views} বার দেখা হয়েছে
-                                                                    </span>
+                                                        return (
+                                                            <Link
+                                                                href={getItemUrl(item)}
+                                                                key={item.id}
+                                                                className="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700"
+                                                                style={{ animationDelay: `${index * 100}ms` }}
+                                                            >
+                                                                <div className="p-5 md:p-6">
+                                                                    <div className="flex items-start gap-4">
+                                                                        {/* Icon */}
+                                                                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform">
+                                                                            <Heart className="w-7 h-7 text-white fill-current" />
+                                                                        </div>
+
+                                                                        {/* Content */}
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                                                <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full font-medium">
+                                                                                    {item.type}
+                                                                                </span>
+                                                                                <span className="text-xs px-2.5 py-1 bg-rose-50 text-rose-600 rounded-full font-medium">
+                                                                                    পছন্দ করা হয়েছে
+                                                                                </span>
+                                                                            </div>
+                                                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-gold-400 transition-colors">
+                                                                                {item.title}
+                                                                            </h3>
+                                                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                                                প্রকাশিত: {item.date}
+                                                                            </p>
+
+                                                                            {/* Stats Row */}
+                                                                            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                                                                <span className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                                                                                    <Eye className="w-4 h-4" />
+                                                                                    {item.views} বার দেখা হয়েছে
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Actions */}
+                                                                        <div className="flex items-center gap-2">
+                                                                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-
-                                                            {/* Actions */}
-                                                            <div className="flex items-center gap-2">
-                                                                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </Link>
-                                            );
-                                        })
+                                                            </Link>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </>
                                     ) : (
                                         <div className="col-span-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-16 text-center border border-gray-100 dark:border-gray-700">
                                             <Heart className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />

@@ -23,10 +23,11 @@ export async function POST(req: NextRequest) {
         }
 
         // Ensure unique slug
-        let finalSlug = slug || title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
+        let baseSlug = slug || title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')
+        let finalSlug = baseSlug
         let counter = 1
         while (await prisma.video.findUnique({ where: { slug: finalSlug } })) {
-            finalSlug = `${slug}-${counter}`
+            finalSlug = `${baseSlug}-${counter}`
             counter++
         }
 

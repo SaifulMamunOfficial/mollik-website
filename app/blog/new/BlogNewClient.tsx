@@ -693,6 +693,28 @@ export default function SubmitPage() {
                                                     onChange={(e) => setMediaUrl(e.target.value)}
                                                     className="w-full text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-gold-500/50"
                                                 />
+
+                                                {/* YouTube Preview */}
+                                                {submissionType === "video" && mediaUrl && (() => {
+                                                    const match = mediaUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^#&?]*).*/);
+                                                    const videoId = match && match[1].length === 11 ? match[1] : null;
+
+                                                    if (videoId) {
+                                                        return (
+                                                            <div className="relative aspect-video rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 mt-3">
+                                                                <iframe
+                                                                    src={`https://www.youtube.com/embed/${videoId}`}
+                                                                    title="YouTube video player"
+                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                    allowFullScreen
+                                                                    className="absolute inset-0 w-full h-full"
+                                                                />
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
+
                                                 <p className="text-xs text-gray-500 text-center">অথবা</p>
                                                 <label className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                                                     {submissionType === "audio" ? <Mic className="w-5 h-5" /> : <Video className="w-5 h-5" />}

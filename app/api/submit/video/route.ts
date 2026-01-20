@@ -27,18 +27,27 @@ export async function POST(req: Request) {
         const youtubeIdMatch = youtubeUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/)
         const youtubeId = youtubeIdMatch ? youtubeIdMatch[1] : youtubeUrl
 
-        // Generate slug
-        const slug = title
+        // Generate base slug
+        let slug = title
             .toLowerCase()
             .replace(/[^\u0980-\u09FFa-z0-9\s-]/g, '')
             .replace(/\s+/g, '-')
             .replace(/-+/g, '-')
-            .trim() + '-' + Date.now()
+            .trim()
+
+        // Ensure unique slug
+        let uniqueSlug = slug
+        let counter = 1
+
+        while (await prisma.video.findFirst({ where: { slug: uniqueSlug } })) {
+            uniqueSlug = `${slug}-${counter}`
+            counter++
+        }
 
         const video = await prisma.video.create({
             data: {
                 title,
-                slug,
+                slug: uniqueSlug,
                 youtubeId,
                 description: description || null,
                 duration: duration || null,
