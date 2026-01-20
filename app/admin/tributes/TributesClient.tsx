@@ -231,7 +231,7 @@ export default function TributesClient({ tributes }: Props) {
                             </div>
                             <div>
                                 <h1 className="text-2xl md:text-3xl font-bold">শোকবার্তা পরিচালনা</h1>
-                                <p className="text-emerald-200 text-sm">কবির প্রতি শ্রদ্ধাঞ্জলি সমূহ</p>
+                                <p className="text-emerald-200 text-sm">কবির প্রতি শোকবার্তা সমূহ</p>
                             </div>
                         </div>
                         <button

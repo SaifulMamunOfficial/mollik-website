@@ -218,7 +218,7 @@ const submissionOptions = [
     { type: OptionType.BLOG_CATEGORY, name: "মিডিয়া কাভারেজ", icon: "Film", order: 7 },
 
     // Poem Categories
-    { type: OptionType.POEM_CATEGORY, name: "শ্রদ্ধাঞ্জলি", icon: "Heart", order: 1 },
+    { type: OptionType.POEM_CATEGORY, name: "শোকবার্তা", icon: "Heart", order: 1 },
     { type: OptionType.POEM_CATEGORY, name: "অনুপ্রেরণা", icon: "Sparkles", order: 2 },
     { type: OptionType.POEM_CATEGORY, name: "কবির কবিতার অনুসরণে", icon: "BookOpen", order: 3 },
 

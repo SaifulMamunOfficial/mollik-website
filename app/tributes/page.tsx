@@ -4,7 +4,7 @@ import TributesClient from "./TributesClient";
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-    title: "শ্রদ্ধাঞ্জলি",
+    title: "শোকবার্তা",
     description: "কবি মতিউর রহমান মল্লিকের প্রতি শ্রদ্ধা নিবেদন এবং স্মৃতিচারণ।",
 };
 

@@ -1,8 +1,38 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import type { SiteSettings } from "@prisma/client";
+import type { HomeStats } from "@/types/home";
 
-export function BiographySection() {
+interface BiographySectionProps {
+    settings: SiteSettings | null;
+    stats: HomeStats;
+}
+
+// Helper to convert number to Bengali numerals
+function toBengaliNumber(num: number): string {
+    const bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return num.toString().split('').map(digit => {
+        const d = parseInt(digit);
+        return isNaN(d) ? digit : bengaliDigits[d];
+    }).join('');
+}
+
+export function BiographySection({ settings, stats }: BiographySectionProps) {
+    // Default biography content
+    const biographyParagraph1 = settings?.biographyShort
+        || "মতিউর রহমান মল্লিক (১ মার্চ ১৯৫০ - ১২ আগস্ট ২০১০) একজন বাংলাদেশী কবি, সাহিত্যিক, সংগীত শিল্পী, সুরকার ও গীতিকার। তিনি বাংলাদেশ সংস্কৃতি কেন্দ্রের নিবাসী পরিচালক ছিলেন।";
+
+    const biographyParagraph2 = "বাগেরহাট জেলার সদর উপজেলার বুরকুণ্ডা গ্রামে জন্মগ্রহণ করেন। জগন্নাথ কলেজ থেকে বাংলা ভাষা ও সাহিত্যে স্নাতকোত্তর সম্পন্ন করেন। তাকে অনেকেই সুবুদ্ধ জাতীয়তাবাদী কবি ও মানবতার কবি বলে থাকেন।";
+
+    const heroTitle = settings?.heroTitle || "মতিউর রহমান মল্লিক";
+    const bornDate = settings?.bornDate || "১৯৫০";
+    const deathDate = settings?.deathDate || "২০১০";
+
+    // Extract years for the badge
+    const bornYear = bornDate.match(/\d{4}/) ? bornDate.match(/\d{4}/)?.[0] : bornDate.split(" ").pop();
+    const deathYear = deathDate.match(/\d{4}/) ? deathDate.match(/\d{4}/)?.[0] : deathDate.split(" ").pop();
+
     return (
         <section className="section bg-cream-50 dark:bg-gray-900">
             <div className="container-custom">
@@ -35,7 +65,7 @@ export function BiographySection() {
                                     {/* Poet Image */}
                                     <Image
                                         src="/images/poet-mollik.png"
-                                        alt="কবি মতিউর রহমান মল্লিক"
+                                        alt={`কবি ${heroTitle}`}
                                         width={224}
                                         height={300}
                                         className="w-full h-full object-cover"
@@ -49,7 +79,7 @@ export function BiographySection() {
                             <div className="mt-8 flex items-center justify-center gap-2">
                                 <span className="w-8 h-[1px] bg-gradient-to-r from-transparent to-gold-400/60" />
                                 <p className="text-center text-gold-600 dark:text-gold-400 font-medium text-sm tracking-wide">
-                                    ✦ কবি, গীতিকার ও সাহিত্যিক ✦
+                                    ✦ {settings?.occupation || "কবি, গীতিকার ও সাহিত্যিক"} ✦
                                 </p>
                                 <span className="w-8 h-[1px] bg-gradient-to-l from-transparent to-gold-400/60" />
                             </div>
@@ -60,26 +90,26 @@ export function BiographySection() {
                             <div className="space-y-6">
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                                     <h3 className="font-display text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                                        মতিউর রহমান মল্লিক
+                                        {heroTitle}
                                     </h3>
                                     <span className="inline-flex items-center px-4 py-1 rounded-full bg-gold-100 dark:bg-gold-900/30 text-gold-700 dark:text-gold-400 text-sm font-medium">
-                                        ১৯৫০ - ২০১০
+                                        {bornYear} - {deathYear}
                                     </span>
                                 </div>
 
                                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                    মতিউর রহমান মল্লিক (১ মার্চ ১৯৫০ - ১২ আগস্ট ২০১০) একজন বাংলাদেশী কবি, সাহিত্যিক, সংগীত শিল্পী, সুরকার ও গীতিকার। তিনি বাংলাদেশ সংস্কৃতি কেন্দ্রের নিবাসী পরিচালক ছিলেন।
+                                    {biographyParagraph1}
                                 </p>
 
                                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                    বাগেরহাট জেলার সদর উপজেলার বুরকুণ্ডা গ্রামে জন্মগ্রহণ করেন। জগন্নাথ কলেজ থেকে বাংলা ভাষা ও সাহিত্যে স্নাতকোত্তর সম্পন্ন করেন। তাকে অনেকেই সুবুদ্ধ জাতীয়তাবাদী কবি ও মানবতার কবি বলে থাকেন।
+                                    {biographyParagraph2}
                                 </p>
 
                                 {/* Stats */}
                                 <div className="grid grid-cols-3 gap-4 pt-4">
                                     <div className="text-center p-4 rounded-xl bg-primary-50 dark:bg-primary-900/20">
                                         <div className="text-2xl md:text-3xl font-bold text-primary-600 dark:text-gold-400 font-display">
-                                            ২০০+
+                                            {stats.poemCount > 0 ? toBengaliNumber(stats.poemCount) + '+' : '২০০+'}
                                         </div>
                                         <div className="text-sm text-gray-600 dark:text-gray-400">
                                             কবিতা
@@ -87,7 +117,7 @@ export function BiographySection() {
                                     </div>
                                     <div className="text-center p-4 rounded-xl bg-gold-50 dark:bg-gold-900/20">
                                         <div className="text-2xl md:text-3xl font-bold text-gold-600 dark:text-gold-400 font-display">
-                                            ১০০+
+                                            {stats.songCount > 0 ? toBengaliNumber(stats.songCount) + '+' : '১০০+'}
                                         </div>
                                         <div className="text-sm text-gray-600 dark:text-gray-400">
                                             গান
@@ -95,7 +125,7 @@ export function BiographySection() {
                                     </div>
                                     <div className="text-center p-4 rounded-xl bg-primary-50 dark:bg-primary-900/20">
                                         <div className="text-2xl md:text-3xl font-bold text-primary-600 dark:text-gold-400 font-display">
-                                            ১৫+
+                                            {stats.bookCount > 0 ? toBengaliNumber(stats.bookCount) + '+' : '১৫+'}
                                         </div>
                                         <div className="text-sm text-gray-600 dark:text-gray-400">
                                             গ্রন্থ

@@ -1,7 +1,23 @@
 import Link from "next/link";
 import { BookOpen, Music, Sparkles } from "lucide-react";
+import type { SiteSettings } from "@prisma/client";
 
-export function HeroSection() {
+interface HeroSectionProps {
+    settings: SiteSettings | null;
+}
+
+export function HeroSection({ settings }: HeroSectionProps) {
+    // Default values if settings not available
+    const heroTitle = settings?.heroTitle || "মতিউর রহমান মল্লিক";
+    const occupation = settings?.occupation || "কবি, গীতিকার ও সাহিত্যিক";
+    const bornDate = settings?.bornDate || "১ মার্চ ১৯৫০";
+    const deathDate = settings?.deathDate || "১২ আগস্ট ২০১০";
+
+    // Split name for styling (first part white, last part gold)
+    const nameParts = heroTitle.split(" ");
+    const firstName = nameParts.slice(0, -1).join(" "); // All except last
+    const lastName = nameParts[nameParts.length - 1]; // Last word
+
     return (
         <section className="relative min-h-screen flex items-center overflow-hidden">
             {/* Background Gradient - More depth */}
@@ -32,7 +48,7 @@ export function HeroSection() {
                     {/* Main Title */}
                     <div className="animate-slide-up overflow-visible pt-2">
                         <h1 className="font-display text-5xl md:text-7xl lg:text-[5.5rem] font-bold text-white tracking-tight" style={{ lineHeight: '1.15' }}>
-                            মতিউর রহমান
+                            {firstName}
                         </h1>
                         <h1
                             className="font-display text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tight"
@@ -44,7 +60,7 @@ export function HeroSection() {
                                 paddingTop: '0.15em'
                             }}
                         >
-                            মল্লিক
+                            {lastName}
                         </h1>
                     </div>
 
@@ -57,12 +73,12 @@ export function HeroSection() {
 
                     {/* Role description - Elegant styling */}
                     <p className="text-xl md:text-2xl text-gold-200/90 font-bengali animate-fade-in stagger-2 tracking-wide">
-                        কবি, গীতিকার ও সাহিত্যিক
+                        {occupation}
                     </p>
 
                     {/* Dates - More refined */}
                     <p className="text-base text-gray-400 animate-fade-in stagger-3 tracking-widest font-light">
-                        ১ মার্চ ১৯৫০ — ১২ আগস্ট ২০১০
+                        {bornDate} — {deathDate}
                     </p>
 
                     {/* CTA Buttons */}

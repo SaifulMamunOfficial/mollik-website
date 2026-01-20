@@ -1,35 +1,42 @@
 import Link from "next/link";
 import { ArrowRight, Music, Play, User } from "lucide-react";
+import type { FeaturedSong } from "@/types/home";
 
-// Sample featured songs data
-const featuredSongs = [
+interface FeaturedSongsProps {
+    songs: FeaturedSong[];
+}
+
+// Sample data for fallback
+const sampleSongs: FeaturedSong[] = [
     {
-        id: 1,
+        id: "1",
+        slug: "sokaler-gaan",
         title: "সকালের গান",
-        lyrics: "সকাল হলো, উঠো গো সবাই\nনতুন দিনের আলো এসেছে\nপাখিরা গান গাইছে ডালে\nপ্রকৃতি জেগেছে নতুন বেশে।",
-        tuneBy: "রাহুল দেব বর্মন",
-        sungBy: "লতা মঙ্গেশকর",
+        excerpt: "সকাল হলো, উঠো গো সবাই\nনতুন দিনের আলো এসেছে\nপাখিরা গান গাইছে ডালে\nপ্রকৃতি জেগেছে নতুন বেশে।",
         year: "১৯৮০",
+        composer: "রাহুল দেব বর্মন",
     },
     {
-        id: 2,
+        id: "2",
+        slug: "desher-gaan",
         title: "দেশের গান",
-        lyrics: "আমার দেশ, আমার মাটি\nতোমার কাছে আমি চিরকৃতজ্ঞ\nতোমার ভালোবাসায় বড় হয়েছি\nতোমার স্নেহে পেয়েছি শক্তি।",
-        tuneBy: "সলিল চৌধুরী",
-        sungBy: "হেমন্ত মুখোপাধ্যায়",
+        excerpt: "আমার দেশ, আমার মাটি\nতোমার কাছে আমি চিরকৃতজ্ঞ\nতোমার ভালোবাসায় বড় হয়েছি\nতোমার স্নেহে পেয়েছি শক্তি।",
         year: "১৯৮৫",
+        composer: "সলিল চৌধুরী",
     },
     {
-        id: 3,
+        id: "3",
+        slug: "premer-gaan",
         title: "প্রেমের গান",
-        lyrics: "তোমাকে ভালোবাসি বলে\nজীবন হয়েছে সুন্দর\nতোমার হাসিতে আলো ফোটে\nমন হয় আনন্দে ভরপুর।",
-        tuneBy: "মানা দে",
-        sungBy: "কিশোর কুমার",
+        excerpt: "তোমাকে ভালোবাসি বলে\nজীবন হয়েছে সুন্দর\nতোমার হাসিতে আলো ফোটে\nমন হয় আনন্দে ভরপুর।",
         year: "১৯৯০",
+        composer: "মানা দে",
     },
 ];
 
-export function FeaturedSongs() {
+export function FeaturedSongs({ songs }: FeaturedSongsProps) {
+    const displaySongs = songs.length > 0 ? songs : sampleSongs;
+
     return (
         <section className="section bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900 text-white">
             <div className="container-custom">
@@ -54,10 +61,10 @@ export function FeaturedSongs() {
 
                 {/* Mobile: Horizontal Scroll */}
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory md:hidden">
-                    {featuredSongs.map((song) => (
+                    {displaySongs.map((song) => (
                         <Link
                             key={song.id}
-                            href={`/songs/${song.id}`}
+                            href={`/songs/${song.slug}`}
                             className="group relative flex-shrink-0 w-[280px] bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:border-gold-500/50 hover:bg-white/10 transition-all duration-300 snap-start"
                         >
                             <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-gold-500 text-gray-900 flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-lg shadow-gold-500/25">
@@ -72,21 +79,23 @@ export function FeaturedSongs() {
                                     <h3 className="font-display text-lg font-bold text-white group-hover:text-gold-400 transition-colors">
                                         {song.title}
                                     </h3>
-                                    <p className="text-xs text-gray-400">রচনা: {song.year}</p>
+                                    <p className="text-xs text-gray-400">রচনা: {song.year || 'অজানা'}</p>
                                 </div>
                             </div>
 
                             <p className="text-gray-300 text-sm mb-4 whitespace-pre-line line-clamp-3 leading-relaxed">
-                                {song.lyrics}
+                                {song.excerpt}
                             </p>
 
                             <div className="flex flex-col gap-1 pt-3 border-t border-white/10 text-xs">
-                                <div className="flex items-center gap-2 text-gray-400">
-                                    <span className="text-gold-400">সুর:</span> {song.tuneBy}
-                                </div>
+                                {song.composer && (
+                                    <div className="flex items-center gap-2 text-gray-400">
+                                        <span className="text-gold-400">সুর:</span> {song.composer}
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-2 text-gray-400">
                                     <User className="w-3 h-3 text-gold-400" />
-                                    {song.sungBy}
+                                    কবি মতিউর রহমান মল্লিক
                                 </div>
                             </div>
                         </Link>
@@ -108,10 +117,10 @@ export function FeaturedSongs() {
 
                 {/* Desktop: Grid Layout */}
                 <div className="hidden md:grid md:grid-cols-3 gap-6">
-                    {featuredSongs.map((song) => (
+                    {displaySongs.map((song) => (
                         <Link
                             key={song.id}
-                            href={`/songs/${song.id}`}
+                            href={`/songs/${song.slug}`}
                             className="group relative bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:border-gold-500/50 hover:bg-white/10 transition-all duration-300"
                         >
                             <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-gold-500 text-gray-900 flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-lg shadow-gold-500/25">
@@ -126,21 +135,23 @@ export function FeaturedSongs() {
                                     <h3 className="font-display text-xl font-bold text-white group-hover:text-gold-400 transition-colors">
                                         {song.title}
                                     </h3>
-                                    <p className="text-sm text-gray-400">রচনা: {song.year}</p>
+                                    <p className="text-sm text-gray-400">রচনা: {song.year || 'অজানা'}</p>
                                 </div>
                             </div>
 
                             <p className="text-gray-300 text-sm mb-4 whitespace-pre-line line-clamp-3 leading-relaxed">
-                                {song.lyrics}
+                                {song.excerpt}
                             </p>
 
                             <div className="flex flex-col gap-2 pt-4 border-t border-white/10 text-sm">
-                                <div className="flex items-center gap-2 text-gray-400">
-                                    <span className="text-gold-400">সুর:</span> {song.tuneBy}
-                                </div>
+                                {song.composer && (
+                                    <div className="flex items-center gap-2 text-gray-400">
+                                        <span className="text-gold-400">সুর:</span> {song.composer}
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-2 text-gray-400">
                                     <User className="w-4 h-4 text-gold-400" />
-                                    {song.sungBy}
+                                    কবি মতিউর রহমান মল্লিক
                                 </div>
                             </div>
                         </Link>
@@ -154,7 +165,9 @@ export function FeaturedSongs() {
                             <Play className="w-7 h-7 ml-1" fill="currentColor" />
                         </button>
                         <div className="flex-1">
-                            <h4 className="font-display text-lg font-bold mb-1">সকালের গান</h4>
+                            <h4 className="font-display text-lg font-bold mb-1">
+                                {displaySongs[0]?.title || 'সকালের গান'}
+                            </h4>
                             <p className="text-sm text-gray-400">কিশোর কুমার • প্রভাতী সুর অ্যালবাম</p>
                             <div className="mt-3 flex items-center gap-3">
                                 <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">

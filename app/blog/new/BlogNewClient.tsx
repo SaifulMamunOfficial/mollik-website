@@ -92,7 +92,7 @@ const categoryOptions: Record<string, { icon: any; name: string }[]> = {
         { icon: Film, name: "মিডিয়া কাভারেজ" },
     ],
     poem: [
-        { icon: Heart, name: "শ্রদ্ধাঞ্জলি" },
+        { icon: Heart, name: "শোকবার্তা" },
         { icon: Sparkles, name: "অনুপ্রেরণা" },
         { icon: BookOpen, name: "কবির কবিতার অনুসরণে" },
     ],

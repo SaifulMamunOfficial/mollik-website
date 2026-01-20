@@ -1,35 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Camera, ZoomIn } from "lucide-react";
 import { useState } from "react";
+import type { FeaturedGalleryImage } from "@/types/home";
 
-// Sample gallery data - 4 images for clean grid
-const galleryImages = [
-    {
-        id: 1,
-        caption: "তরুণ বয়সে কবি",
-        year: "১৯৭৫",
-    },
-    {
-        id: 2,
-        caption: "কবি সম্মেলনে",
-        year: "১৯৯০",
-    },
-    {
-        id: 3,
-        caption: "পরিবারের সাথে",
-        year: "২০০০",
-    },
-    {
-        id: 4,
-        caption: "পুরস্কার গ্রহণ",
-        year: "২০০৫",
-    },
+interface PhotoGalleryPreviewProps {
+    images: FeaturedGalleryImage[];
+}
+
+// Sample data for fallback
+const sampleImages: FeaturedGalleryImage[] = [
+    { id: "1", title: "তরুণ বয়সে কবি", description: null, url: "", year: "১৯৭৫" },
+    { id: "2", title: "কবি সম্মেলনে", description: null, url: "", year: "১৯৯০" },
+    { id: "3", title: "পরিবারের সাথে", description: null, url: "", year: "২০০০" },
+    { id: "4", title: "পুরস্কার গ্রহণ", description: null, url: "", year: "২০০৫" },
 ];
 
-export function PhotoGalleryPreview() {
-    const [hoveredId, setHoveredId] = useState<number | null>(null);
+export function PhotoGalleryPreview({ images }: PhotoGalleryPreviewProps) {
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
+    const displayImages = images.length > 0 ? images : sampleImages;
 
     return (
         <section className="section bg-gray-50 dark:bg-gray-900">
@@ -58,7 +49,7 @@ export function PhotoGalleryPreview() {
 
                 {/* Mobile: Horizontal Scroll */}
                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory md:hidden">
-                    {galleryImages.map((image) => (
+                    {displayImages.map((image) => (
                         <Link
                             key={image.id}
                             href={`/gallery?photo=${image.id}`}
@@ -66,16 +57,23 @@ export function PhotoGalleryPreview() {
                             onMouseEnter={() => setHoveredId(image.id)}
                             onMouseLeave={() => setHoveredId(null)}
                         >
-                            {/* Placeholder Image */}
-                            <div
-                                className="absolute inset-0 bg-gradient-to-br from-primary-200 via-primary-300 to-gold-200 dark:from-primary-800 dark:via-primary-700 dark:to-gold-800 transition-transform duration-500 group-hover:scale-110"
-                            >
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-5xl md:text-6xl font-display font-bold text-white/30">
-                                        {image.caption.charAt(0)}
-                                    </span>
+                            {/* Image or Placeholder */}
+                            {image.url ? (
+                                <Image
+                                    src={image.url}
+                                    alt={image.title || "Gallery Image"}
+                                    fill
+                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary-200 via-primary-300 to-gold-200 dark:from-primary-800 dark:via-primary-700 dark:to-gold-800 transition-transform duration-500 group-hover:scale-110">
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-5xl md:text-6xl font-display font-bold text-white/30">
+                                            {(image.title || "G").charAt(0)}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Overlay - Always Visible on Mobile */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
@@ -89,10 +87,10 @@ export function PhotoGalleryPreview() {
                                 {/* Caption */}
                                 <div className="absolute bottom-0 left-0 right-0 p-4">
                                     <p className="text-white font-semibold text-base line-clamp-1">
-                                        {image.caption}
+                                        {image.title || "গ্যালারি ছবি"}
                                     </p>
                                     <p className="text-white/70 text-xs mt-1">
-                                        {image.year}
+                                        {image.year || ""}
                                     </p>
                                 </div>
                             </div>
@@ -115,7 +113,7 @@ export function PhotoGalleryPreview() {
 
                 {/* Desktop: Clean 4 Column Layout */}
                 <div className="hidden md:grid md:grid-cols-4 gap-4">
-                    {galleryImages.map((image) => (
+                    {displayImages.map((image) => (
                         <Link
                             key={image.id}
                             href={`/gallery?photo=${image.id}`}
@@ -123,16 +121,23 @@ export function PhotoGalleryPreview() {
                             onMouseEnter={() => setHoveredId(image.id)}
                             onMouseLeave={() => setHoveredId(null)}
                         >
-                            {/* Placeholder Image */}
-                            <div
-                                className="absolute inset-0 bg-gradient-to-br from-primary-200 via-primary-300 to-gold-200 dark:from-primary-800 dark:via-primary-700 dark:to-gold-800 transition-transform duration-500 group-hover:scale-110"
-                            >
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-5xl md:text-6xl font-display font-bold text-white/30">
-                                        {image.caption.charAt(0)}
-                                    </span>
+                            {/* Image or Placeholder */}
+                            {image.url ? (
+                                <Image
+                                    src={image.url}
+                                    alt={image.title || "Gallery Image"}
+                                    fill
+                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary-200 via-primary-300 to-gold-200 dark:from-primary-800 dark:via-primary-700 dark:to-gold-800 transition-transform duration-500 group-hover:scale-110">
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-5xl md:text-6xl font-display font-bold text-white/30">
+                                            {(image.title || "G").charAt(0)}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Overlay */}
                             <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300 ${hoveredId === image.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
@@ -147,10 +152,10 @@ export function PhotoGalleryPreview() {
                                 {/* Caption */}
                                 <div className="absolute bottom-0 left-0 right-0 p-4">
                                     <p className="text-white font-semibold text-base">
-                                        {image.caption}
+                                        {image.title || "গ্যালারি ছবি"}
                                     </p>
                                     <p className="text-white/70 text-sm mt-1">
-                                        {image.year}
+                                        {image.year || ""}
                                     </p>
                                 </div>
                             </div>

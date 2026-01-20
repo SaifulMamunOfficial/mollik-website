@@ -1,31 +1,40 @@
 import Link from "next/link";
 import { ArrowRight, Eye, BookOpen } from "lucide-react";
+import type { FeaturedPoem } from "@/types/home";
 
-// Sample featured poems data (in production this would come from the database)
-const featuredPoems = [
+interface FeaturedPoemsProps {
+    poems: FeaturedPoem[];
+}
+
+// Sample data for fallback
+const samplePoems: FeaturedPoem[] = [
     {
-        id: 1,
+        id: "1",
+        slug: "probhater-alo",
         title: "প্রভাতের আলো",
         excerpt: "সকালের সূর্য উঠেছে আকাশে\nপ্রকৃতি জেগে উঠেছে নতুন আশে\nপাখিরা গান গায় ডালে ডালে\nস্বপ্নেরা ভেসে যায় সকালের আলে।",
         year: "১৯৭৫",
         views: 1250,
     },
     {
-        id: 2,
+        id: "2",
+        slug: "matribhumir-proti",
         title: "মাতৃভূমির প্রতি",
         excerpt: "হে আমার স্বদেশ, হে আমার মাতৃভূমি\nতোমার কাছে আমি চিরকাল ঋণী\nতোমার মাটিতে খেলেছি শৈশবে\nতোমার আকাশে দেখেছি স্বপ্নের রবি।",
         year: "১৯৮০",
         views: 980,
     },
     {
-        id: 3,
+        id: "3",
+        slug: "borshar-gaan",
         title: "বর্ষার গান",
         excerpt: "মেঘ জমেছে আকাশে\nবৃষ্টি নামবে সারা দেশে\nধান ক্ষেত হাসবে আনন্দে\nকৃষকের মুখে ফুটবে উল্লাস।",
         year: "১৯৯০",
         views: 756,
     },
     {
-        id: 4,
+        id: "4",
+        slug: "shantir-khoje",
         title: "শান্তির খোঁজে",
         excerpt: "হৃদয়ের গভীরে খুঁজে ফিরি\nএকটুখানি শান্তির ছোঁয়া\nএই কোলাহলপূর্ণ জীবনে\nমনের প্রশান্তি কোথায় পাওয়া।",
         year: "২০০৫",
@@ -33,7 +42,9 @@ const featuredPoems = [
     },
 ];
 
-export function FeaturedPoems() {
+export function FeaturedPoems({ poems }: FeaturedPoemsProps) {
+    const displayPoems = poems.length > 0 ? poems : samplePoems;
+
     return (
         <section className="section bg-white dark:bg-gray-950">
             <div className="container-custom">
@@ -59,10 +70,10 @@ export function FeaturedPoems() {
                 {/* Mobile: Horizontal Scroll */}
                 <div className="flex gap-4 overflow-x-auto pb-4 pt-4 scrollbar-hide snap-x snap-mandatory md:hidden">
 
-                    {featuredPoems.map((poem, index) => (
+                    {displayPoems.map((poem, index) => (
                         <Link
                             key={poem.id}
-                            href={`/poems/${poem.id}`}
+                            href={`/poems/${poem.slug}`}
                             className={`group relative flex-shrink-0 w-[280px] bg-gradient-to-br from-cream-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover-lift transition-all duration-300 snap-start ${index === 0 ? 'ring-2 ring-gold-400 dark:ring-gold-500' : ''
                                 }`}
                         >
@@ -84,7 +95,7 @@ export function FeaturedPoems() {
                             </p>
 
                             <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-500 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                <span>প্রকাশিত: {poem.year}</span>
+                                <span>প্রকাশিত: {poem.year || 'অজানা'}</span>
                                 <span className="flex items-center gap-1">
                                     <Eye className="w-4 h-4" />
                                     {poem.views.toLocaleString('bn-BD')}
@@ -109,10 +120,10 @@ export function FeaturedPoems() {
 
                 {/* Desktop: Grid Layout */}
                 <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
-                    {featuredPoems.map((poem, index) => (
+                    {displayPoems.map((poem, index) => (
                         <Link
                             key={poem.id}
-                            href={`/poems/${poem.id}`}
+                            href={`/poems/${poem.slug}`}
                             className={`group relative bg-gradient-to-br from-cream-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover-lift transition-all duration-300 ${index === 0 ? 'ring-2 ring-gold-400 dark:ring-gold-500' : ''
                                 }`}
                         >
@@ -134,7 +145,7 @@ export function FeaturedPoems() {
                             </p>
 
                             <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-500 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                <span>প্রকাশিত: {poem.year}</span>
+                                <span>প্রকাশিত: {poem.year || 'অজানা'}</span>
                                 <span className="flex items-center gap-1">
                                     <Eye className="w-4 h-4" />
                                     {poem.views.toLocaleString('bn-BD')}

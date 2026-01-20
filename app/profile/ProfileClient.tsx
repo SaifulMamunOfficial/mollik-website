@@ -256,7 +256,7 @@ export default function ProfileClient() {
                                         { value: user.stats.submissions, label: "লেখা", icon: FileText, color: "from-violet-500 to-purple-600" },
                                         { value: user.stats.views, label: "মোট ভিউ", icon: Eye, color: "from-rose-500 to-pink-600" },
                                         { value: user.stats.comments, label: "মন্তব্য", icon: MessageSquare, color: "from-blue-500 to-cyan-600" },
-                                        { value: user.stats.tributes, label: "শ্রদ্ধাঞ্জলি", icon: Sparkles, color: "from-amber-500 to-orange-600" },
+                                        { value: user.stats.tributes, label: "শোকবার্তা", icon: Sparkles, color: "from-amber-500 to-orange-600" },
                                     ].map((stat, i) => (
                                         <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/15 transition-colors group cursor-default">
                                             <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center mb-2 group-hover:scale-110 transition-transform`}>

@@ -24,7 +24,7 @@ export async function POST(
 
         return NextResponse.json({
             tribute,
-            message: 'শ্রদ্ধাঞ্জলি বাতিল করা হয়েছে'
+            message: 'শোকবার্তা বাতিল করা হয়েছে'
         })
     } catch (error) {
         console.error('Reject error:', error)

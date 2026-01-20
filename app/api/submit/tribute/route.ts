@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
         if (!content || content.trim().length < 10) {
             return NextResponse.json(
-                { message: 'শ্রদ্ধাঞ্জলি অন্তত ১০ অক্ষরের হতে হবে' },
+                { message: 'শোকবার্তা অন্তত ১০ অক্ষরের হতে হবে' },
                 { status: 400 }
             )
         }
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         return NextResponse.json(
             {
                 tribute,
-                message: 'আপনার শ্রদ্ধাঞ্জলি সাবমিট হয়েছে। অনুমোদনের পর প্রকাশিত হবে।'
+                message: 'আপনার শোকবার্তা সাবমিট হয়েছে। অনুমোদনের পর প্রকাশিত হবে।'
             },
             { status: 201 }
         )
