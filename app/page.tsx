@@ -12,6 +12,9 @@ import { VideoHighlights } from "@/components/home/VideoHighlights";
 import { AwardsSection } from "@/components/home/AwardsSection";
 import prisma from "@/lib/prisma";
 
+// Force dynamic rendering - don't prerender at build time
+export const dynamic = 'force-dynamic';
+
 // Fetch all home page data
 async function getHomePageData() {
     const [
