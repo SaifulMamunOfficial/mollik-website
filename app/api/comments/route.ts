@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { isRateLimited } from "@/lib/rate-limit";
 
 // POST - Create a new comment
 export async function POST(req: Request) {
@@ -11,6 +12,14 @@ export async function POST(req: Request) {
             return NextResponse.json(
                 { message: "মন্তব্য করতে লগইন করুন" },
                 { status: 401 }
+            );
+        }
+
+        // Limit comments to 5 requests per minute per user
+        if (isRateLimited(`comment-${session.user.id}`, 5, 60000)) {
+            return NextResponse.json(
+                { message: "অতিরিক্ত মন্তব্য পোস্ট করছেন। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।" },
+                { status: 429 }
             );
         }
 
@@ -205,8 +214,9 @@ export async function DELETE(req: Request) {
             );
         }
 
-        // Check ownership (only owner can delete, unless admin)
-        if (comment.userId !== session.user.id) {
+        // Check ownership (only owner can delete, unless admin/super_admin)
+        const isAdmin = ['ADMIN', 'SUPER_ADMIN'].includes(session.user.role || '');
+        if (comment.userId !== session.user.id && !isAdmin) {
             return NextResponse.json(
                 { message: "আপনি শুধু নিজের মন্তব্য মুছতে পারবেন" },
                 { status: 403 }

@@ -2,8 +2,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { BiographySection } from "@/components/home/BiographySection";
-import { FeaturedPoems } from "@/components/home/FeaturedPoems";
-import { FeaturedSongs } from "@/components/home/FeaturedSongs";
 import { WorksGrid } from "@/components/home/WorksGrid";
 import { TributeSection } from "@/components/home/TributeSection";
 import { RecentBlog } from "@/components/home/RecentBlog";
@@ -19,8 +17,8 @@ export const dynamic = 'force-dynamic';
 async function getHomePageData() {
     const [
         settings,
-        featuredPoems,
-        featuredSongs,
+        latestPoems,
+        latestSongs,
         featuredVideos,
         featuredImages,
         recentBlogs,
@@ -34,9 +32,9 @@ async function getHomePageData() {
         // Site Settings
         prisma.siteSettings.findFirst(),
 
-        // Featured Poems (top 4)
+        // Poems for WorksGrid (top 3)
         prisma.writing.findMany({
-            where: { type: 'POEM', featured: true, status: 'PUBLISHED' },
+            where: { type: 'POEM', status: 'PUBLISHED' },
             select: {
                 id: true,
                 slug: true,
@@ -45,13 +43,13 @@ async function getHomePageData() {
                 year: true,
                 views: true,
             },
-            orderBy: { views: 'desc' },
-            take: 4,
+            orderBy: { createdAt: 'desc' },
+            take: 3,
         }),
 
-        // Featured Songs (top 3)
+        // Songs for WorksGrid (top 3)
         prisma.writing.findMany({
-            where: { type: 'SONG', featured: true, status: 'PUBLISHED' },
+            where: { type: 'SONG', status: 'PUBLISHED' },
             select: {
                 id: true,
                 slug: true,
@@ -60,7 +58,7 @@ async function getHomePageData() {
                 year: true,
                 composer: true,
             },
-            orderBy: { views: 'desc' },
+            orderBy: { createdAt: 'desc' },
             take: 3,
         }),
 
@@ -142,7 +140,7 @@ async function getHomePageData() {
         // Stats - Essay count
         prisma.writing.count({ where: { type: 'ESSAY', status: 'PUBLISHED' } }),
 
-        // Latest Books (top 2)
+        // Latest Books (top 3)
         prisma.book.findMany({
             select: {
                 id: true,
@@ -151,22 +149,41 @@ async function getHomePageData() {
                 subtitle: true,
             },
             orderBy: { createdAt: 'desc' },
-            take: 2,
+            take: 3,
         }),
     ]);
 
     // Parse awards from settings JSON - can be string[] or object[]
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     let awards: any[] = [];
     if (settings?.awards && Array.isArray(settings.awards)) {
         awards = settings.awards;
     }
 
+    // Fallback: If no videos are marked as featured, fetch the latest published videos from DB
+    let finalVideos = featuredVideos;
+    if (finalVideos.length === 0) {
+        finalVideos = await prisma.video.findMany({
+            where: { status: 'PUBLISHED' },
+            select: {
+                id: true,
+                slug: true,
+                title: true,
+                description: true,
+                youtubeId: true,
+                thumbnail: true,
+                duration: true,
+                views: true,
+                category: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 3,
+        });
+    }
+
     return {
         settings,
-        featuredPoems,
-        featuredSongs,
-        featuredVideos,
+        featuredVideos: finalVideos,
         featuredImages,
         recentBlogs,
         featuredTributes,
@@ -178,8 +195,8 @@ async function getHomePageData() {
             essayCount,
         },
         latestWorks: {
-            poems: featuredPoems.slice(0, 2),
-            songs: featuredSongs.slice(0, 2),
+            poems: latestPoems,
+            songs: latestSongs,
             books: latestBooks,
         },
     };
@@ -195,8 +212,6 @@ export default async function Home() {
                 <HeroSection settings={data.settings} />
                 <BiographySection settings={data.settings} stats={data.stats} />
                 <AwardsSection awards={data.awards} />
-                <FeaturedPoems poems={data.featuredPoems} />
-                <FeaturedSongs songs={data.featuredSongs} />
                 <PhotoGalleryPreview images={data.featuredImages} />
                 <VideoHighlights videos={data.featuredVideos} />
                 <WorksGrid stats={data.stats} latestWorks={data.latestWorks} />

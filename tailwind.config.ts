@@ -60,11 +60,9 @@ const config: Config = {
                 },
             },
             fontFamily: {
-                // Force Li Purno Pran for all text types to ensure consistency
-                bengali: ['"Li Purno Pran"', '"Hind Siliguri"', '"Anek Bangla"', '"Noto Serif Bengali"', '"Noto Sans Bengali"', 'serif'],
-                display: ['"Li Purno Pran"', '"Playfair Display"', '"Noto Serif Bengali"', 'serif'],
-                sans: ['"Li Purno Pran"', '"Inter"', 'system-ui', 'sans-serif'],
-                serif: ['"Li Purno Pran"', '"Noto Serif Bengali"', 'serif'],
+                sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+                bengali: ['var(--font-noto-bengali)', 'var(--font-hind-siliguri)', 'sans-serif'],
+                display: ['"Li Purno Pran"', 'var(--font-noto-bengali)', 'serif'],
             },
             backgroundImage: {
                 "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

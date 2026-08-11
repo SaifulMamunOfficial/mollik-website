@@ -46,40 +46,25 @@ export default function BooksPageClient({ books }: BooksPageClientProps) {
     return (
         <main className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-cream-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
             {/* Hero Section */}
-            <section className="relative py-20 overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02]">
-                    <div className="absolute inset-0" style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                    }} />
-                </div>
-
-                {/* Gradient Overlay */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-radial from-primary-100/30 via-transparent to-transparent dark:from-primary-900/20 blur-3xl" />
-
+            <section className="relative pt-16 pb-10 border-b border-[rgb(var(--border))]/20">
                 <div className="container-custom relative">
-                    <div className="text-center max-w-3xl mx-auto">
-                        {/* Icon */}
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-gold-500 dark:to-gold-600 rounded-3xl shadow-xl shadow-primary-500/25 dark:shadow-gold-500/25 mb-8 transform -rotate-6">
-                            <BookOpen className="w-10 h-10 text-white transform rotate-6" />
-                        </div>
-
-                        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+                    <div className="text-center max-w-2xl mx-auto">
+                        <h1 className="font-display text-4xl md:text-5xl font-bold text-[rgb(var(--foreground))] tracking-tight mb-3">
                             গ্রন্থাগার
                         </h1>
-                        <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed mb-10">
-                            কবি মতিউর রহমান মল্লিকের প্রকাশিত গ্রন্থসমূহ পড়ুন। বইতে ক্লিক করে সেই বইয়ের সকল রচনা পড়তে পারবেন।
+                        <p className="text-sm md:text-base text-[rgb(var(--muted-foreground))] leading-relaxed max-w-xl mx-auto mb-8">
+                            কবি মতিউর রহমান মল্লিকের প্রকাশিত সকল গ্রন্থসমূহ ও তাদের সূচিপত্র। বইতে ক্লিক করে সেই বইয়ের সকল রচনা পড়তে পারবেন।
                         </p>
 
-                        {/* Search Bar */}
-                        <div className="max-w-xl mx-auto relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        {/* Minimalist Search Bar */}
+                        <div className="max-w-md mx-auto relative">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--muted-foreground))]" />
                             <input
                                 type="text"
                                 placeholder="বই খুঁজুন..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-gold-500 focus:border-transparent shadow-lg shadow-gray-200/50 dark:shadow-none transition-all"
+                                className="w-full pl-10 pr-4 py-2.5 bg-[rgb(var(--surface))] border border-[rgb(var(--border))]/55 rounded-xl text-sm text-[rgb(var(--foreground))] placeholder-[rgb(var(--muted-foreground))]/70 focus:outline-none focus:border-[rgb(var(--primary))] transition-all shadow-sm"
                             />
                         </div>
                     </div>

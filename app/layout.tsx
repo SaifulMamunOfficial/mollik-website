@@ -1,32 +1,34 @@
 import type { Metadata } from "next";
-import { Hind_Siliguri, Noto_Serif_Bengali, Playfair_Display } from "next/font/google";
+import { Inter, Noto_Sans_Bengali, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { AudioProvider } from "@/components/providers/AudioProvider";
+import { AudioPlayer } from "@/components/layout/AudioPlayer";
 
-// Bengali reading font
-const hindSiliguri = Hind_Siliguri({
-    weight: ['300', '400', '500', '600', '700'],
-    subsets: ['bengali', 'latin'],
-    display: 'swap',
-    variable: '--font-bengali',
-});
-
-// Bengali display/serif font
-const notoSerifBengali = Noto_Serif_Bengali({
-    weight: ['300', '400', '500', '600', '700'],
-    subsets: ['bengali', 'latin'],
-    display: 'swap',
-    variable: '--font-bengali-serif',
-});
-
-// English display font
-const playfairDisplay = Playfair_Display({
-    weight: ['400', '500', '600', '700'],
+// English body font
+const inter = Inter({
     subsets: ['latin'],
     display: 'swap',
-    variable: '--font-display',
+    variable: '--font-inter',
 });
+
+// Bengali primary body font
+const notoBengali = Noto_Sans_Bengali({
+    weight: ['300', '400', '500', '600', '700', '800'],
+    subsets: ['bengali'],
+    display: 'swap',
+    variable: '--font-noto-bengali',
+});
+
+// Bengali secondary body font
+const hindSiliguri = Hind_Siliguri({
+    weight: ['300', '400', '500', '600', '700'],
+    subsets: ['bengali'],
+    display: 'swap',
+    variable: '--font-hind-siliguri',
+});
+
 
 export const metadata: Metadata = {
     title: {
@@ -71,7 +73,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="bn" suppressHydrationWarning className={`${hindSiliguri.variable} ${notoSerifBengali.variable} ${playfairDisplay.variable}`}>
+        <html lang="bn" suppressHydrationWarning className={`${inter.variable} ${notoBengali.variable} ${hindSiliguri.variable}`}>
             <head>
                 <link rel="icon" href="/favicon.ico" sizes="any" />
                 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -125,7 +127,12 @@ export default function RootLayout({
                     disableTransitionOnChange
                 >
                     <AuthSessionProvider>
-                        {children}
+                        <AudioProvider>
+                            <div className="flex-1 flex flex-col pb-24 md:pb-28">
+                                {children}
+                            </div>
+                            <AudioPlayer />
+                        </AudioProvider>
                     </AuthSessionProvider>
                 </ThemeProvider>
             </body>

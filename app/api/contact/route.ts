@@ -1,8 +1,18 @@
 import { NextResponse } from 'next/server';
 import { submitContact } from '@/lib/data';
+import { isRateLimited, getClientIp } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
     try {
+        const ip = getClientIp(request);
+        // Limit contact form submissions to 3 requests per minute per IP
+        if (isRateLimited(`contact-${ip}`, 3, 60000)) {
+            return NextResponse.json(
+                { error: 'অতিরিক্ত রিকোয়েস্ট পাঠিয়েছেন। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।' },
+                { status: 429 }
+            );
+        }
+
         const body = await request.json();
         const { name, email, subject, message } = body;
 

@@ -83,6 +83,15 @@ export default async function VideoDetailPage({ params }: Props) {
                 views: mainVideoStat.viewCount || normalizedVideo.views,
                 duration: mainVideoStat.duration || normalizedVideo.duration
             };
+
+            // Async update to DB so the new views reflect on homepage/listings without blocking response
+            prisma.video.update({
+                where: { id: video.id },
+                data: {
+                    views: mainVideoStat.viewCount || video.views,
+                    duration: mainVideoStat.duration || video.duration
+                }
+            }).catch(e => console.error("Failed to update video views in DB:", e));
         }
 
         // Update views & duration for related videos

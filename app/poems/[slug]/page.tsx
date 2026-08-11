@@ -184,7 +184,7 @@ export default function PoemDetailPage({ params }: PageProps) {
                                         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gold-400 to-gold-500 dark:from-gold-500 dark:to-gold-600 rounded-2xl shadow-lg shadow-gold-500/25 mb-6 transform -rotate-12">
                                             <Feather className="w-8 h-8 text-white transform rotate-12" />
                                         </div>
-                                        <h1 className="font-bengali text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-4 selection:bg-gold-200 dark:selection:bg-gold-900/50" style={{ fontFamily: '"Li Purno Pran", "Hind Siliguri", "Anek Bangla", serif' }}>
+                                        <h1 className="font-bengali text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-4 selection:bg-gold-200 dark:selection:bg-gold-900/50">
                                             {poem.title}
                                         </h1>
                                         <p className="text-gray-500 dark:text-gray-400 text-lg">
@@ -197,10 +197,14 @@ export default function PoemDetailPage({ params }: PageProps) {
                                         <button
                                             onClick={handleCopy}
                                             className="group flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl transition-all font-medium text-sm hover:scale-105 active:scale-95"
+                                            aria-label={copied ? "কবিতা কপি হয়েছে" : "কবিতাটি কপি করুন"}
                                         >
                                             {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 group-hover:scale-110 transition-transform" />}
-                                            {copied ? "কপি হয়েছে!" : "কপি"}
+                                            <span>{copied ? "কপি হয়েছে!" : "কপি"}</span>
                                         </button>
+                                        <span className="sr-only" aria-live="polite">
+                                            {copied ? "কবিতাটি সফলভাবে ক্লিপবোর্ডে কপি করা হয়েছে" : ""}
+                                        </span>
 
                                         <button className="group flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl transition-all font-medium text-sm hover:scale-105 active:scale-95">
                                             <Printer className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -234,8 +238,8 @@ export default function PoemDetailPage({ params }: PageProps) {
 
                                 {/* Poem Content */}
                                 <div className="p-8 md:p-12 lg:px-16 lg:py-12">
-                                    <div className="ml-auto mr-0 md:ml-[25%] md:mr-auto max-w-lg">
-                                        <div className="text-lg md:text-xl leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-line text-left poem-content selection:bg-gold-200 dark:selection:bg-gold-900/50 tracking-wide font-bengali" style={{ fontFamily: '"Li Purno Pran", "Hind Siliguri", "Anek Bangla", serif' }}>
+                                    <div className="max-w-[640px] mx-auto">
+                                        <div className="text-lg md:text-xl leading-[2.2] text-gray-800 dark:text-gray-200 whitespace-pre-line text-left poem-content selection:bg-gold-200 dark:selection:bg-gold-900/50 tracking-wide font-bengali">
                                             {poem.content}
                                         </div>
 

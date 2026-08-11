@@ -117,8 +117,7 @@ export async function GET() {
         });
 
         // Get user's liked posts
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const likedposts = await (prisma as any).like.findMany({
+        const likedposts = await prisma.like.findMany({
             where: { userId: session.user.id, blogPostId: { not: null } },
             orderBy: { createdAt: "desc" },
             take: 20,

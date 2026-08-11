@@ -24,7 +24,11 @@ export function WorksGrid({ stats, latestWorks }: WorksGridProps) {
             icon: BookOpen,
             count: stats.poemCount,
             items: latestWorks.poems.length > 0
-                ? latestWorks.poems.map(p => ({ name: p.title, description: p.excerpt?.substring(0, 50) + "..." || "কবির জনপ্রিয় কবিতা", slug: p.slug }))
+                ? latestWorks.poems.map(p => ({ 
+                    name: p.title, 
+                    description: p.excerpt ? p.excerpt.substring(0, 50) + "..." : "কবির জনপ্রিয় কবিতা", 
+                    slug: p.slug 
+                  }))
                 : [
                     { name: "প্রভাতের আলো", description: "কবির সবচেয়ে জনপ্রিয় কবিতা", slug: "probhater-alo" },
                     { name: "মাতৃভূমির প্রতি", description: "দেশপ্রেমের অমর গীতি", slug: "matribhumir-proti" },
@@ -38,7 +42,11 @@ export function WorksGrid({ stats, latestWorks }: WorksGridProps) {
             icon: Music,
             count: stats.songCount,
             items: latestWorks.songs.length > 0
-                ? latestWorks.songs.map(s => ({ name: s.title, description: s.excerpt?.substring(0, 50) + "..." || "কবির জনপ্রিয় গান", slug: s.slug }))
+                ? latestWorks.songs.map(s => ({ 
+                    name: s.title, 
+                    description: s.excerpt ? s.excerpt.substring(0, 50) + "..." : "কবির জনপ্রিয় গান", 
+                    slug: s.slug 
+                  }))
                 : [
                     { name: "সকালের গান", description: "নতুন দিনের আশা ও আনন্দের গান", slug: "sokaler-gaan" },
                     { name: "দেশের গান", description: "মাতৃভূমির প্রতি ভালোবাসার প্রকাশ", slug: "desher-gaan" },
@@ -81,7 +89,7 @@ export function WorksGrid({ stats, latestWorks }: WorksGridProps) {
                     {workCategories.map((category) => (
                         <div
                             key={category.title}
-                            className={`${category.bgColor} flex-shrink-0 w-[300px] rounded-3xl p-8 shadow-lg snap-center`}
+                            className={`${category.bgColor} flex-shrink-0 w-[300px] rounded-3xl p-8 shadow-lg snap-center flex flex-col`}
                         >
                             {/* Icon */}
                             <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${category.color} flex items-center justify-center mb-6 shadow-lg`}>
@@ -101,7 +109,7 @@ export function WorksGrid({ stats, latestWorks }: WorksGridProps) {
                             </div>
 
                             {/* Items */}
-                            <div className="space-y-4 mb-6">
+                            <div className="space-y-4 mb-6 flex-grow">
                                 {category.items.map((item) => (
                                     <div
                                         key={item.name}
@@ -118,13 +126,15 @@ export function WorksGrid({ stats, latestWorks }: WorksGridProps) {
                             </div>
 
                             {/* Link */}
-                            <Link
-                                href={category.href}
-                                className="inline-flex items-center gap-2 text-primary-600 dark:text-gold-400 hover:text-primary-700 dark:hover:text-gold-300 font-medium transition-colors"
-                            >
-                                সব দেখুন
-                                <ArrowRight className="w-4 h-4" />
-                            </Link>
+                            <div className="mt-auto pt-4">
+                                <Link
+                                    href={category.href}
+                                    className="inline-flex items-center gap-2 text-primary-600 dark:text-gold-400 hover:text-primary-700 dark:hover:text-gold-300 font-medium transition-colors"
+                                >
+                                    সব দেখুন
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -134,7 +144,7 @@ export function WorksGrid({ stats, latestWorks }: WorksGridProps) {
                     {workCategories.map((category) => (
                         <div
                             key={category.title}
-                            className={`${category.bgColor} rounded-3xl p-8 shadow-lg hover:shadow-xl transition-shadow`}
+                            className={`${category.bgColor} rounded-3xl p-8 shadow-lg hover:shadow-xl transition-shadow flex flex-col`}
                         >
                             {/* Icon */}
                             <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${category.color} flex items-center justify-center mb-6 shadow-lg`}>
@@ -154,7 +164,7 @@ export function WorksGrid({ stats, latestWorks }: WorksGridProps) {
                             </div>
 
                             {/* Items */}
-                            <div className="space-y-4 mb-6">
+                            <div className="space-y-4 mb-6 flex-grow">
                                 {category.items.map((item) => (
                                     <div
                                         key={item.name}
@@ -171,13 +181,15 @@ export function WorksGrid({ stats, latestWorks }: WorksGridProps) {
                             </div>
 
                             {/* Link */}
-                            <Link
-                                href={category.href}
-                                className="inline-flex items-center gap-2 text-primary-600 dark:text-gold-400 hover:text-primary-700 dark:hover:text-gold-300 font-medium transition-colors"
-                            >
-                                সব দেখুন
-                                <ArrowRight className="w-4 h-4" />
-                            </Link>
+                            <div className="mt-auto pt-4">
+                                <Link
+                                    href={category.href}
+                                    className="inline-flex items-center gap-2 text-primary-600 dark:text-gold-400 hover:text-primary-700 dark:hover:text-gold-300 font-medium transition-colors"
+                                >
+                                    সব দেখুন
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </div>
                         </div>
                     ))}
                 </div>

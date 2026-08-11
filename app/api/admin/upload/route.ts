@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { isRateLimited } from "@/lib/rate-limit";
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +13,14 @@ export async function POST(request: Request) {
             return NextResponse.json(
                 { message: "অনুমতি নেই" },
                 { status: 401 }
+            );
+        }
+
+        // Limit image uploads to 10 requests per minute per admin
+        if (isRateLimited(`upload-${session.user.id}`, 10, 60000)) {
+            return NextResponse.json(
+                { message: "অতিরিক্ত ফাইল আপলোড করছেন। দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন।" },
+                { status: 429 }
             );
         }
 

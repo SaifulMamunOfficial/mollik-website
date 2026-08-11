@@ -391,3 +391,9 @@ model Subscriber {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
+// ==================== PAGE VIEWS ====================
+model PageView {
+  id    String @id @default("main")
+  count Int    @default(0)
+}
