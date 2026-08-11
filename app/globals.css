@@ -24,30 +24,30 @@
 
 @layer base {
   :root {
-    --background: 255 254 247;
-    --foreground: 47 27 20;
-    --primary: 139 69 19;
-    --primary-foreground: 255 255 255;
-    --secondary: 205 133 63;
-    --accent: 160 82 45;
-    --gold: 184 134 11;
-    --muted: 245 241 235;
-    --muted-foreground: 100 80 70;
-    --border: 214 200 185;
+    --background: 253 251 247; /* Ivory (#FDFBF7) */
+    --foreground: 31 41 51;    /* Charcoal (#1F2933) */
+    --primary: 6 78 59;        /* Primary Emerald (#064E3B) */
+    --primary-foreground: 253 251 247;
+    --secondary: 2 44 34;      /* Deep Emerald (#022C22) */
+    --accent: 183 121 31;      /* Antique Gold (#B7791F) */
+    --gold: 183 121 31;        /* Antique Gold (#B7791F) */
+    --muted: 246 241 231;      /* Parchment (#F6F1E7) */
+    --muted-foreground: 71 85 105; /* Slate (#475569) */
+    --border: 231 229 228;     /* Memorial Gray (#E7E5E4) */
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 18 14 12;
-    --foreground: 245 241 235;
-    --primary: 220 160 100;
-    --primary-foreground: 18 14 12;
-    --secondary: 160 82 45;
-    --accent: 184 134 11;
-    --gold: 218 165 32;
-    --muted: 35 28 23;
-    --muted-foreground: 180 170 160;
-    --border: 60 50 40;
+    --background: 11 23 19;    /* Dark Background (#0B1713) */
+    --foreground: 245 241 232; /* Text (#F5F1E8) */
+    --primary: 111 165 143;    /* Primary (#6FA58F) */
+    --primary-foreground: 11 23 19;
+    --secondary: 24 52 42;      /* Surface 2 (#18342A) */
+    --accent: 201 164 92;      /* Gold (#C9A45C) */
+    --gold: 201 164 92;        /* Gold (#C9A45C) */
+    --muted: 18 35 29;         /* Surface (#12231D) */
+    --muted-foreground: 167 181 174; /* Muted Text (#A7B5AE) */
+    --border: 41 68 58;        /* Border (#29443A) */
   }
 
   * {

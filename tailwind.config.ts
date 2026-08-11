@@ -10,53 +10,53 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                // Primary brand colors
+                // Primary brand colors (Emerald Family)
                 primary: {
-                    50: "#fdf8f3",
-                    100: "#faeee0",
-                    200: "#f4d9bd",
-                    300: "#edbe8f",
-                    400: "#e49c5e",
-                    500: "#dc8239",
-                    600: "#cd6a29",
-                    700: "#ab5323",
-                    800: "#8a4423",
-                    900: "#703a20",
-                    950: "#3d1c0e",
+                    50: "#DDEBE5",  // Primary Soft
+                    100: "#C5DBD1",
+                    200: "#9FC0B1",
+                    300: "#749E8A",
+                    400: "#4F7E69",
+                    500: "#064E3B",  // Primary
+                    600: "#054031",
+                    700: "#043327",
+                    800: "#03261d",
+                    900: "#022C22",  // Primary Deep
+                    950: "#011712",
                 },
-                // Gold accent
+                // Gold accent (Antique Gold Family)
                 gold: {
-                    50: "#fdfcf3",
-                    100: "#faf8e0",
-                    200: "#f4efc1",
-                    300: "#ede297",
-                    400: "#e5d06b",
-                    500: "#dbb943",
-                    600: "#c79d32",
-                    700: "#a67a29",
-                    800: "#866027",
-                    900: "#6e4f24",
-                    950: "#3e2a11",
+                    50: "#FCFAF3",
+                    100: "#F3E7C3", // Gold Soft
+                    200: "#E7D197",
+                    300: "#DBAE5F",
+                    400: "#CB9137",
+                    500: "#B7791F", // Antique Gold
+                    600: "#9B6217",
+                    700: "#7E4B12",
+                    800: "#61360D",
+                    900: "#452309",
+                    950: "#2D1405",
                 },
-                // Background colors
+                // Background colors (Ivory & Parchment)
                 cream: {
-                    50: "#fffef7",
-                    100: "#fffceb",
-                    200: "#fff8d1",
+                    50: "#FDFBF7",  // Literary Ivory
+                    100: "#F6F1E7", // Parchment
+                    200: "#EAE2D3",
                 },
-                // Rose color for condolence section
+                // Rose color replaced with Muted Slate & Memorial Gray
                 rose: {
-                    50: "#fff1f2",
-                    100: "#ffe4e6",
-                    200: "#fecdd3",
-                    300: "#fda4af",
-                    400: "#fb7185",
-                    500: "#f43f5e",
-                    600: "#e11d48",
-                    700: "#be123c",
-                    800: "#9f1239",
-                    900: "#881337",
-                    950: "#4c0519",
+                    50: "#F1F0ED",  // Tribute Background
+                    100: "#E7E5E4", // Memorial Gray
+                    200: "#D6D3D1", // Tribute Border
+                    300: "#A8A29E",
+                    400: "#78716C",
+                    500: "#475569", // Memorial Slate / Secondary Text
+                    600: "#1F2933", // Charcoal / Primary Text
+                    700: "#0F172A",
+                    800: "#020617",
+                    900: "#000000",
+                    950: "#000000",
                 },
             },
             fontFamily: {
