@@ -160,8 +160,13 @@ export function Header() {
                                     className="flex items-center gap-2 p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                                     aria-label="ইউজার মেনু"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-600 to-gold-500 flex items-center justify-center text-white text-sm font-semibold">
-                                        {session.user?.name?.charAt(0) || "A"}
+                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-600 to-gold-500 flex items-center justify-center text-white text-sm font-semibold">
+                                        {session.user?.image ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img src={session.user.image} alt={session.user.name || "User"} className="w-full h-full object-cover" />
+                                        ) : (
+                                            session.user?.name?.charAt(0) || "A"
+                                        )}
                                     </div>
                                 </button>
 
@@ -293,8 +298,13 @@ export function Header() {
                                 {session ? (
                                     <>
                                         <div className="flex items-center gap-3 px-4 py-3">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-600 to-gold-500 flex items-center justify-center text-white font-semibold">
-                                                {session.user?.name?.charAt(0) || "A"}
+                                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-primary-600 to-gold-500 flex items-center justify-center text-white font-semibold">
+                                                {session.user?.image ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img src={session.user.image} alt={session.user.name || "User"} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    session.user?.name?.charAt(0) || "A"
+                                                )}
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-900 dark:text-white">
