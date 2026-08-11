@@ -28,7 +28,6 @@ export function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const [logoLoaded, setLogoLoaded] = useState(false);
 
     useEffect(() => {
         // Check system preference and localStorage
@@ -77,20 +76,21 @@ export function Header() {
                 <div className="flex items-center justify-between h-16 md:h-20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                        <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform bg-gradient-to-br from-primary-600 to-gold-500">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img 
                                 src="/images/logo.png" 
                                 alt="মতিউর রহমান মল্লিক" 
-                                className={`w-full h-full object-cover ${logoLoaded ? 'block' : 'hidden'}`}
-                                onLoad={() => setLogoLoaded(true)}
-                                onError={() => setLogoLoaded(false)}
+                                className="w-full h-full object-cover" 
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    const fallback = e.currentTarget.parentElement?.querySelector('.logo-text-fallback');
+                                    if (fallback) fallback.classList.remove('hidden');
+                                }}
                             />
-                            {!logoLoaded && (
-                                <div className="logo-fallback w-full h-full bg-gradient-to-br from-primary-600 to-gold-500 flex items-center justify-center text-white font-display font-bold text-lg md:text-xl">
-                                    ম
-                                </div>
-                            )}
+                            <span className="logo-text-fallback hidden text-white font-display font-bold text-lg md:text-xl">
+                                ম
+                            </span>
                         </div>
                         <div className="block">
                             <h1 className="font-display font-semibold text-lg md:text-xl text-gray-900 dark:text-white leading-tight">
