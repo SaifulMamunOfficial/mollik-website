@@ -65,6 +65,28 @@ export async function POST(request: Request) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
+        // Local Storage Fallback if Cloudinary config is missing
+        if (!process.env.CLOUDINARY_CLOUD_NAME) {
+            const { writeFile, mkdir } = await import("fs/promises");
+            const path = await import("path");
+            
+            const ext = file.name.split('.').pop() || 'png';
+            const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+            const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+            
+            // Ensure directory exists
+            await mkdir(uploadDir, { recursive: true });
+            
+            // Save file
+            await writeFile(path.join(uploadDir, filename), buffer);
+            
+            return NextResponse.json({
+                message: "ছবি লোকাল সার্ভারে আপলোড হয়েছে",
+                url: `/uploads/${filename}`,
+                publicId: filename
+            });
+        }
+
         // Upload to Cloudinary
         const result = await uploadToCloudinary(buffer, `mollik/${folder}`);
 
