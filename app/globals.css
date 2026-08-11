@@ -178,3 +178,14 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Dynamic bottom padding when Audio Player is active */
+body.has-audio-player {
+  padding-bottom: 6rem; /* pb-24 equivalence on mobile */
+}
+
+@media (min-width: 768px) {
+  body.has-audio-player {
+    padding-bottom: 7rem; /* pb-28 equivalence on desktop */
+  }
+}

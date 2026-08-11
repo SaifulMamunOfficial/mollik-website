@@ -128,7 +128,7 @@ export default function RootLayout({
                 >
                     <AuthSessionProvider>
                         <AudioProvider>
-                            <div className="flex-1 flex flex-col pb-24 md:pb-28">
+                            <div className="flex-1 flex flex-col">
                                 {children}
                             </div>
                             <AudioPlayer />

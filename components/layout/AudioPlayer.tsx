@@ -24,6 +24,17 @@ export function AudioPlayer() {
     const [isMinimized, setIsMinimized] = useState(false);
     const [prevVolume, setPrevVolume] = useState(0.8);
 
+    React.useEffect(() => {
+        if (currentTrack && !isMinimized) {
+            document.body.classList.add("has-audio-player");
+        } else {
+            document.body.classList.remove("has-audio-player");
+        }
+        return () => {
+            document.body.classList.remove("has-audio-player");
+        };
+    }, [currentTrack, isMinimized]);
+
     if (!currentTrack) return null;
 
     // Helper to format time (e.g. 125 -> "02:05")
