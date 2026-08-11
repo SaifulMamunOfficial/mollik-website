@@ -28,6 +28,7 @@ export function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const [logoLoaded, setLogoLoaded] = useState(false);
 
     useEffect(() => {
         // Check system preference and localStorage
@@ -81,16 +82,15 @@ export function Header() {
                             <img 
                                 src="/images/logo.png" 
                                 alt="মতিউর রহমান মল্লিক" 
-                                className="w-full h-full object-cover hidden" 
-                                onLoad={(e) => {
-                                    e.currentTarget.classList.remove('hidden');
-                                    const fallback = e.currentTarget.parentElement?.querySelector('.logo-fallback');
-                                    if (fallback) fallback.classList.add('hidden');
-                                }}
+                                className={`w-full h-full object-cover ${logoLoaded ? 'block' : 'hidden'}`}
+                                onLoad={() => setLogoLoaded(true)}
+                                onError={() => setLogoLoaded(false)}
                             />
-                            <div className="logo-fallback w-full h-full bg-gradient-to-br from-primary-600 to-gold-500 flex items-center justify-center text-white font-display font-bold text-lg md:text-xl">
-                                ম
-                            </div>
+                            {!logoLoaded && (
+                                <div className="logo-fallback w-full h-full bg-gradient-to-br from-primary-600 to-gold-500 flex items-center justify-center text-white font-display font-bold text-lg md:text-xl">
+                                    ম
+                                </div>
+                            )}
                         </div>
                         <div className="block">
                             <h1 className="font-display font-semibold text-lg md:text-xl text-gray-900 dark:text-white leading-tight">
