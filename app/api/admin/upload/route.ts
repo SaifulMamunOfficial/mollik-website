@@ -101,7 +101,7 @@ export async function POST(request: Request) {
                 );
 
                 // Construct public URL
-                const publicUrl = `${process.env.AWS_ENDPOINT_URL}/${process.env.AWS_BUCKET || 'mollik-archive'}/${key}`;
+                const publicUrl = `${process.env.AWS_PUBLIC_URL || process.env.AWS_ENDPOINT_URL}/${process.env.AWS_BUCKET || 'mollik-archive'}/${key}`;
 
                 return NextResponse.json({
                     message: "ছবি আপনার S3 সার্ভারে আপলোড হয়েছে",
