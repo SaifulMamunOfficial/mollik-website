@@ -76,8 +76,21 @@ export function Header() {
                 <div className="flex items-center justify-between h-16 md:h-20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-primary-600 to-gold-500 flex items-center justify-center text-white font-display font-bold text-lg md:text-xl shadow-lg group-hover:scale-105 transition-transform">
-                            ম
+                        <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img 
+                                src="/images/logo.png" 
+                                alt="মতিউর রহমান মল্লিক" 
+                                className="w-full h-full object-cover hidden" 
+                                onLoad={(e) => {
+                                    e.currentTarget.classList.remove('hidden');
+                                    const fallback = e.currentTarget.parentElement?.querySelector('.logo-fallback');
+                                    if (fallback) fallback.classList.add('hidden');
+                                }}
+                            />
+                            <div className="logo-fallback w-full h-full bg-gradient-to-br from-primary-600 to-gold-500 flex items-center justify-center text-white font-display font-bold text-lg md:text-xl">
+                                ম
+                            </div>
                         </div>
                         <div className="block">
                             <h1 className="font-display font-semibold text-lg md:text-xl text-gray-900 dark:text-white leading-tight">
