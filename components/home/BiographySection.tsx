@@ -48,7 +48,7 @@ export function BiographySection({ settings, stats }: BiographySectionProps) {
                     </div>
                     <Link
                         href="/biography"
-                        className="inline-flex items-center gap-2 mt-4 md:mt-0 text-primary-600 dark:text-gold-400 hover:text-primary-700 dark:hover:text-gold-300 font-medium transition-colors"
+                        className="hidden md:inline-flex items-center gap-2 text-primary-600 dark:text-gold-400 hover:text-primary-700 dark:hover:text-gold-300 font-medium transition-colors"
                     >
                         বিস্তারিত জীবনী
                         <ArrowRight className="w-4 h-4" />
@@ -131,6 +131,16 @@ export function BiographySection({ settings, stats }: BiographySectionProps) {
                                             গ্রন্থ
                                         </div>
                                     </div>
+                                </div>
+
+                                <div className="pt-4 md:hidden text-center">
+                                    <Link
+                                        href="/biography"
+                                        className="inline-flex items-center gap-2 text-primary-600 dark:text-gold-400 hover:text-primary-700 dark:hover:text-gold-300 font-medium transition-colors"
+                                    >
+                                        বিস্তারিত জীবনী পড়ুন
+                                        <ArrowRight className="w-4 h-4" />
+                                    </Link>
                                 </div>
                             </div>
                         </div>
